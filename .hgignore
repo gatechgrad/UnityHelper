@@ -1,0 +1,11 @@
+syntax: glob
+UnityHelper/UnityHelper/Assembly-CSharp-vs.csproj
+UnityHelper/UnityHelper/Assembly-CSharp.csproj
+UnityHelper/UnityHelper/Assets/Scenes.meta
+UnityHelper/UnityHelper/Assets/Scenes
+UnityHelper/UnityHelper/Library
+UnityHelper/UnityHelper/ProjectSettings
+UnityHelper/UnityHelper/Temp
+UnityHelper/UnityHelper/UnityHelper.sln
+UnityHelper/UnityHelper/UnityHelper-csharp.sln
+UnityHelper/UnityHelper/UnityHelper.userprefs
