@@ -7,11 +7,11 @@ public class OutlineEffect : MonoBehaviour {
 //    private int[] outlineX = {2, -2, 0,  0};
 //    private int[] outlineY = {0,  0, 2, -2};
 
-	public int xShadowOffset = 4;
-	public int yShadowOffset = -4;
+	public int xShadowOffset = 2;
+	public int yShadowOffset = -2;
 //	public Color colorShadow = Color.black;
 
-	public int iOutlineOffset = 4;
+	public int iOutlineOffset = 2;
 	public bool isOutline = false;
 	public bool isShadow = true;
 
@@ -58,10 +58,12 @@ public class OutlineEffect : MonoBehaviour {
 
 
         //make children and arrange them
+        //x and z are relative to the parent, but z is absolute
+                tempPosition = gameObject.transform.position + new Vector3(0, 0, gameObject.transform.position.z - 0.1f);       
+//                tempPosition = gameObject.transform.position;       
 
-        tempPosition = gameObject.transform.position + new Vector3(0, 0, -1);       
-		
-		childArray = new ArrayList();
+
+        childArray = new ArrayList();
 		
         for (int i=0;i<(outlineX.Length);i++) {           
             GameObject child = new GameObject("outlineChild"); 
