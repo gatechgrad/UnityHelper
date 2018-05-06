@@ -8,4 +8,6 @@ SET UNITY_EXE="e:\Program Files\Unity\Editor\Unity.exe"
 
 %UNITY_EXE% -batchmode -logFile -projectPath %PROJ_DIR% -buildWindowsPlayer build\%PROJ_EXE%Windows\%PROJ_EXE%.exe -quit
 
+@echo 
+
 pause > nul

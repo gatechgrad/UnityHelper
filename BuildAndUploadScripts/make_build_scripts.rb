@@ -3,6 +3,7 @@ require 'fileutils'
 out_dir = "out"
 proj_name = ARGV[0]
 itch_id = ARGV[1]
+proj_dir = 'E:/ldsmith/projects/'
 
 
 if (!proj_name.nil? && !itch_id.nil?) 
@@ -40,6 +41,9 @@ if (!proj_name.nil? && !itch_id.nil?)
 	f = File.open("out/butler_push_all.bat", "w")
 	f.puts(strFile)
 	f.close()
+	
+	FileUtils.mv("out/build_all.bat", "#{proj_dir + proj_name}")
+	FileUtils.mv("out/butler_push_all.bat", "#{proj_dir + proj_name}")
 
 	
 elsif
