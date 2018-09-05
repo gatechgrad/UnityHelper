@@ -1,6 +1,10 @@
-PROJECTS_DIR='E:/ldsmith/projects'
+### 2018 Levi D. Smith
+### levidsmith.com
 
-def displayProjects(strProjectsDir)
+PROJECTS_DIR='E:/ldsmith/projects'
+UNITY_CURRENT_VERSION = "2018.2.6f1"
+
+def displayProjects(strProjectsDir, strCurrentVersion)
 	strResult = ""
 #	strResult << "hello"
 	puts "Projects: #{strProjectsDir}"
@@ -13,7 +17,7 @@ def displayProjects(strProjectsDir)
 		if (entry != '.' || entry != '..')
 			
 			strEntryPath = File.join(strProjectsDir, entry)
-			if (File.directory?(strEntryPath)) 
+			if (File.directory?(strEntryPath) && File.directory?(strEntryPath + "/Assets") )
 			
 				
 				hasPrintedProjectName = false
@@ -29,7 +33,9 @@ def displayProjects(strProjectsDir)
 							end
 						
 							strEditorFile = File.join(strEntryPath, strFileName)
-							File.open(strEditorFile).each do | line |
+							f = File.open(strEditorFile, "r")
+#							File.open(strEditorFile, "r").each do | line |
+							f.each do | line |
 								if (line =~ /<UnityVersion>(.*)<\/UnityVersion>/)
 #									puts "  Unity Version: " + $1 + " (#{strFileName})"
 									strResult << "  Unity Version: " + $1 + " (#{strFileName})" + "\n"
@@ -37,6 +43,7 @@ def displayProjects(strProjectsDir)
 							
 								
 							end
+							f.close
 							
 						end
 					end
@@ -51,13 +58,24 @@ def displayProjects(strProjectsDir)
 						hasPrintedProjectName = true
 					end
 
-					File.open(strProjectVersionPath).each do | line |
+					f = File.open(strProjectVersionPath, "r")
+#					File.open(strProjectVersionPath, "r").each do | line |
+					f.each do | line |
 						if (line =~ /m_EditorVersion: (.*)/)
+							strVersion = $1
 #							puts "  Unity Version: " + $1 + " (#{strProjectVersionFile})"
-							strResult << "  Unity Version: " + $1 + " (#{strProjectVersionFile})" + "\n"
+							strResult << "  Unity Version: " + $1 + " (#{strProjectVersionFile})"
 							
+							if (strVersion == strCurrentVersion)
+								strResult << "[ OK ]"
+							else 
+								strResult << "[ NOT CURRENT VERSION ]"
+							end
+							
+							strResult << "\n"
 						end
 					end
+					f.close
 				
 				end
 				

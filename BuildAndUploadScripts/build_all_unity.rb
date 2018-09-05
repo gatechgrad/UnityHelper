@@ -1,3 +1,6 @@
+### 2018 Levi D. Smith
+### levidsmith.com
+
 require 'fileutils'
 
 strBaseDir = 'E:/ldsmith/projects'
