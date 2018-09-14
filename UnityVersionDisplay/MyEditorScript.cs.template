@@ -1,0 +1,29 @@
+﻿using System.Collections.Generic;
+using UnityEditor;
+
+public class MyEditorScript {
+    [MenuItem("MyTools/WebGL build")]
+    public static void PerformBuild() {
+        List<string> scenes = new List<string>();
+        foreach(EditorBuildSettingsScene scene in EditorBuildSettings.scenes) {
+            if (scene.enabled) {
+                scenes.Add(scene.path);
+            }
+        }
+
+        BuildPipeline.BuildPlayer(scenes.ToArray(), "build/%NAME%WebGL", BuildTarget.WebGL, BuildOptions.None);
+    }
+}
+
+
+/*
+using UnityEditor;
+
+public class MyEditorScript {
+    [MenuItem("MyTools/WebGL build")]
+    public static void PerformBuild() {
+        string[] scenes = { %SCENES% };
+        BuildPipeline.BuildPlayer(scenes, "build/%NAME%WebGL", BuildTarget.WebGL, BuildOptions.None);
+    }
+}
+*/

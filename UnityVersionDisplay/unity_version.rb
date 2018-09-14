@@ -1,12 +1,18 @@
 ### 2018 Levi D. Smith
 ### levidsmith.com
 
+require 'fileutils'
+
 PROJECTS_DIR='E:/ldsmith/projects'
 UNITY_CURRENT_VERSION = "2018.2.6f1"
+PLAYMAKER_CURRENT_VERSION = "1.9.0"
+
+UNITY_EXE = 'E:/Program Files/Unity/Editor/Unity.exe'
 
 class GameProject
 		attr_accessor :name
 		attr_accessor :versions
+		attr_accessor :playmaker_version
 		attr_accessor :hasUnityPackageManagerFolder
 		attr_accessor :hasTempFolder
 		
@@ -114,6 +120,27 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 				if (File.directory?(File.join(strEntryPath, "Temp")))
 					strResult << "  Consider deleting Temp folder" + "\n"
 				end
+				
+				strWelcomeWindowFileName = "Assets/PlayMaker/Editor/PlayMakerWelcomeWindow.cs"
+				if (File.file?(File.join(strEntryPath, strWelcomeWindowFileName)))
+					f = File.open(File.join(strEntryPath, strWelcomeWindowFileName), "r")
+					f.each do | line |
+						if (line =~ /InstallCurrentVersion = "(.*)";/)
+							strVersion = $1
+#							strResult << "  PlayMaker Version: " + $1
+							
+							game.playmaker_version = $1
+							
+						end
+					end
+					f.close
+
+#					game.playmaker_version = '?'
+
+				
+				end
+#				game.playmaker_version = '??'
+				
 
 				gameProjectList << game
 				
@@ -129,10 +156,78 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 	return gameProjectList
 end
 
+def compileWebGL(games)
+	games.each do | game |
+		puts "WebGL compile: #{game.name}"
+		dirProject = File.join(PROJECTS_DIR, game.name)
+		dirBuild = File.join(PROJECTS_DIR, game.name, "build", "#{game.name}WebGL")
+		puts "build directory #{dirBuild}"
+		FileUtils.rm_rf(dirBuild)
+		
+		
+#		strCommand = '"' + UNITY_EXE + '" -batchmode -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + dirBuild + ' -quit'
+#		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + dirBuild + ' -quit'
+
+#Must generate the build script first...
+		strBuildContents = ""
+		
+		strScenes = ""
+		Dir.entries(File.join(dirProject, "Assets/Scenes")).select { | strFileName |
+			if (strFileName != '.' && strFileName != '..')
+
+				if (strFileName.end_with? ".unity")
+				
+					if (strScenes != "")
+						strScenes << ', '
+					end
+					strScenes << '"Assets/Scenes/' + strFileName + '"'
+			
+				end
+			end
+		}
+			
+
+		
+		
+		fTempFile = File.open("MyEditorScript.cs.template", "r")
+		fTempFile.each do | line |
+			if (line =~ /(.*)(%NAME%)(.*)/)
+				strBuildContents << $1 << game.name << $3 << "\n"
+			elsif (line =~ /(.*)(%SCENES%)(.*)/)
+				strBuildContents << $1 << strScenes << $3 << "\n"
+				
+			else 
+				strBuildContents << line
+			end
+		end
+		fTempFile.close
+		
+		puts strBuildContents
+		
+		if (!File.directory?(File.join(dirProject, "Assets/Editor")) )
+			FileUtils.mkdir(File.join(dirProject, "Assets/Editor"))
+		end 
+		File.open(File.join(dirProject, "Assets/Editor/MyEditorScript.cs"), 'w') { | file |
+			file.write(strBuildContents)
+		
+		}
+
+		
+		
+		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -executeMethod MyEditorScript.PerformBuild -quit'
+		puts strCommand
+		system(strCommand)
+		
+		
+		
+	end
+
+end
+
 
 
 def main()
-	displayProjects(PROJECTS_DIR)
+	displayProjects()
 end
 
 
