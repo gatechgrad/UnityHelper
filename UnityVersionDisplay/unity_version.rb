@@ -3,11 +3,17 @@
 
 require 'fileutils'
 
-PROJECTS_DIR='E:/ldsmith/projects'
-UNITY_CURRENT_VERSION = "2018.2.6f1"
-PLAYMAKER_CURRENT_VERSION = "1.9.0"
+#PROJECTS_DIR='E:/ldsmith/projects'
+#UNITY_CURRENT_VERSION = "2018.2.6f1"
+#PLAYMAKER_CURRENT_VERSION = "1.9.0"
+#UNITY_EXE = 'E:/Program Files/Unity/Editor/Unity.exe'
 
-UNITY_EXE = 'E:/Program Files/Unity/Editor/Unity.exe'
+class Config
+	attr_accessor :projects_dir
+	attr_accessor :unity_current_version
+	attr_accessor :playmaker_current_version
+	attr_accessor :unity_exe
+end
 
 class GameProject
 		attr_accessor :name
@@ -35,7 +41,8 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 	puts "Projects: #{strProjectsDir}"
 	
 	if (!File.directory?(strProjectsDir))
-		return "Directory #{strProjectsDir} does not exist!"
+		puts "Directory #{strProjectsDir} does not exist!"
+		return nil
 	end
 	
 	Dir.entries(strProjectsDir).select { | entry |
@@ -159,8 +166,8 @@ end
 def compileWebGL(games)
 	games.each do | game |
 		puts "WebGL compile: #{game.name}"
-		dirProject = File.join(PROJECTS_DIR, game.name)
-		dirBuild = File.join(PROJECTS_DIR, game.name, "build", "#{game.name}WebGL")
+		dirProject = File.join($config.projects_dir, game.name)
+		dirBuild = File.join($config.projects_dir, game.name, "build", "#{game.name}WebGL")
 		puts "build directory #{dirBuild}"
 		FileUtils.rm_rf(dirBuild)
 		
@@ -214,7 +221,7 @@ def compileWebGL(games)
 
 		
 		
-		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -executeMethod MyEditorScript.PerformBuild -quit'
+		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod MyEditorScript.PerformBuild -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -227,8 +234,8 @@ end
 
 def clearBuildFolder(games)
 	games.each do | game |
-		dirProject = File.join(PROJECTS_DIR, game.name)
-		dirBuild = File.join(PROJECTS_DIR, game.name, "build")
+		dirProject = File.join($config.projects_dir, game.name)
+		dirBuild = File.join($config.projects_dir, game.name, "build")
 		puts "Clearing: #{dirBuild}"
 
 #		puts "build directory #{dirBuild}"
@@ -256,18 +263,18 @@ end
 def compileWindows(games)
 	games.each do | game |
 		puts "Windows compile: #{game.name}"
-		dirProject = File.join(PROJECTS_DIR, game.name)
-		dirBuild = File.join(PROJECTS_DIR, game.name, "build", "#{game.name}Windows")
+		dirProject = File.join($config.projects_dir, game.name)
+		dirBuild = File.join($config.projects_dir, game.name, "build", "#{game.name}Windows")
 		puts "build directory #{dirBuild}"
 		
-		if (!File.directory?(File.join(PROJECTS_DIR, game.name, "build")))
-			FileUtils.mkdir(File.join(PROJECTS_DIR, game.name, "build"))
+		if (!File.directory?(File.join($config.projects_dir, game.name, "build")))
+			FileUtils.mkdir(File.join($config.projects_dir, game.name, "build"))
 		else
 			FileUtils.rm_rf(dirBuild)
 		
 		end
 		
-		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
+		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -277,18 +284,18 @@ end
 def compileMac(games)
 	games.each do | game |
 		puts "Mac compile: #{game.name}"
-		dirProject = File.join(PROJECTS_DIR, game.name)
-		dirBuild = File.join(PROJECTS_DIR, game.name, "build", "#{game.name}Mac")
+		dirProject = File.join($config.projects_dir, game.name)
+		dirBuild = File.join($config.projects_dir, game.name, "build", "#{game.name}Mac")
 		puts "build directory #{dirBuild}"
 		
-		if (!File.directory?(File.join(PROJECTS_DIR, game.name, "build")))
-			FileUtils.mkdir(File.join(PROJECTS_DIR, game.name, "build"))
+		if (!File.directory?(File.join($config.projects_dir, game.name, "build")))
+			FileUtils.mkdir(File.join($config.projects_dir, game.name, "build"))
 		else
 			FileUtils.rm_rf(dirBuild)
 		
 		end
 		
-		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -buildOSXUniversalPlayer ' + File.join(dirBuild, game.name + ".app") + ' -quit'
+		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildOSXUniversalPlayer ' + File.join(dirBuild, game.name + ".app") + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -299,18 +306,18 @@ end
 def compileLinux(games)
 	games.each do | game |
 		puts "Linux compile: #{game.name}"
-		dirProject = File.join(PROJECTS_DIR, game.name)
-		dirBuild = File.join(PROJECTS_DIR, game.name, "build", "#{game.name}Linux")
+		dirProject = File.join($config.projects_dir, game.name)
+		dirBuild = File.join($config.projects_dir, game.name, "build", "#{game.name}Linux")
 		puts "build directory #{dirBuild}"
 		
-		if (!File.directory?(File.join(PROJECTS_DIR, game.name, "build")))
-			FileUtils.mkdir(File.join(PROJECTS_DIR, game.name, "build"))
+		if (!File.directory?(File.join($config.projects_dir, game.name, "build")))
+			FileUtils.mkdir(File.join($config.projects_dir, game.name, "build"))
 		else
 			FileUtils.rm_rf(dirBuild)
 		
 		end
 		
-		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + File.join(dirBuild, game.name) + ' -quit'
+		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + File.join(dirBuild, game.name) + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -318,7 +325,37 @@ def compileLinux(games)
 end
 
 
+def readConfigFile() 
+	$config = Config.new
+	
+	fileConfig = File.open("unity_version.config", "r")
+	fileConfig.each do | line |
+		if (line =~ /UNITY_EXE: (.*)/)
+			$config.unity_exe = $1
+		end
+		
+		if (line =~ /PROJECTS_DIR: (.*)/)
+			$config.projects_dir = $1
+		end
+		
+		if (line =~ /UNITY_CURRENT_VERSION: (.*)/)
+			$config.unity_current_version = $1
+		end
+		
+		if (line =~ /PLAYMAKER_CURRENT_VERSION: (.*)/)
+			$config.playmaker_current_version = $1
+		end
+		
+		
+	end
+	
+	fileConfig.close
+
+
+end
+
 def main()
+	readConfigFile
 	displayProjects()
 end
 

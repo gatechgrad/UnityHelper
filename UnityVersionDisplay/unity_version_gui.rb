@@ -52,16 +52,19 @@ def makeGameProjectHeaders()
 	labelName = Gtk::Label.new("Project Name")
 	labelName.override_background_color(:normal, headerBkgColor)
 	$tableGames.attach_defaults(labelName, 1, 2, 0, 1)
+#	$tableGames.attach(labelName, 1, 2, 0, 1, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::EXPAND, 0, 0)
 	labelName.show
 
 	labelUnityVersion = Gtk::Label.new("Unity Version")
 	labelUnityVersion.override_background_color(:normal, headerBkgColor)
 	$tableGames.attach_defaults(labelUnityVersion, 2, 3, 0, 1)
+#	$tableGames.attach(labelUnityVersion, 2, 3, 0, 1, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::EXPAND, 0, 0)
 	labelUnityVersion.show
 
 	labelPlayMakerVersion = Gtk::Label.new("PlayMaker Version")
 	labelPlayMakerVersion.override_background_color(:normal, headerBkgColor)
 	$tableGames.attach_defaults(labelPlayMakerVersion, 3, 4, 0, 1)
+#	$tableGames.attach(labelPlayMakerVersion, 3, 4, 0, 1, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::EXPAND, 0, 0)
 	labelPlayMakerVersion.show
 	
 	$tableGames.set_row_spacing(0, 8)
@@ -103,8 +106,10 @@ def makeGameProjectRow(gridGames, iRow, gameProject)
 		end
 		labelVersion.label += "#{version.versionNumber}"
 	end
-	if (labelVersion.label != UNITY_CURRENT_VERSION) 
+	if (labelVersion.label != $config.unity_current_version) 
 		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 0.5, 0.5, 1.0))
+#	else
+#			labelVersion.override_background_color(:normal, Gdk::RGBA::new(  0.5, 0.5, 0.5, 1.0))
 	end
 	$tableGames.attach_defaults(labelVersion, 2, 3, iRow, iRow + 1)
 	labelVersion.show
@@ -115,7 +120,7 @@ def makeGameProjectRow(gridGames, iRow, gameProject)
 #		puts "PlayMaker version: #{gameProject.playmaker_version}"
 		labelPlaymakerVersion.label = gameProject.playmaker_version
 		
-		if (labelPlaymakerVersion.label != PLAYMAKER_CURRENT_VERSION) 
+		if (labelPlaymakerVersion.label != $config.playmaker_current_version) 
 			labelPlaymakerVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 0.5, 0.5, 1.0))
 		end
 
@@ -154,7 +159,8 @@ labelProjectDirectory.label = "Projects Directory"
 grid.attach(labelProjectDirectory, 0, iRow, 1, 1)
 
 textProjectDirectory = Gtk::Entry.new
-textProjectDirectory.text = PROJECTS_DIR
+textProjectDirectory.editable = false
+textProjectDirectory.text = $config.projects_dir
 grid.attach(textProjectDirectory, 1, iRow, 1, 1)
 
 iRow += 1
@@ -164,7 +170,8 @@ labelProjectDirectory.label = "Unity Current Version"
 grid.attach(labelProjectDirectory, 0, iRow, 1, 1)
 
 textUnityCurrentVersion = Gtk::Entry.new
-textUnityCurrentVersion.text = UNITY_CURRENT_VERSION
+textUnityCurrentVersion.editable = false
+textUnityCurrentVersion.text = $config.unity_current_version
 grid.attach(textUnityCurrentVersion, 1, iRow, 1, 1)
 
 
@@ -203,12 +210,13 @@ button.signal_connect "clicked" do |_widget|
 	$gameArray = Array.new
 
 
-	
-	gameProjectsList.each do | game |
+	if (!gameProjectsList.nil?)
+		gameProjectsList.each do | game |
 	
 #		textResults.buffer.text += "Game: #{game.name}\n" 
-		makeGameProjectRow(gridGames, iGame, game)
-		iGame += 1
+			makeGameProjectRow(gridGames, iGame, game)
+			iGame += 1
+		end
 	end
 	
 	
@@ -481,4 +489,5 @@ def clearBuildFolderClicked()
 
 end
 
+readConfigFile()
 makeWindow()
