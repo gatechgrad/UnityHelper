@@ -225,6 +225,98 @@ def compileWebGL(games)
 end
 
 
+def clearBuildFolder(games)
+	games.each do | game |
+		dirProject = File.join(PROJECTS_DIR, game.name)
+		dirBuild = File.join(PROJECTS_DIR, game.name, "build")
+		puts "Clearing: #{dirBuild}"
+
+#		puts "build directory #{dirBuild}"
+#		FileUtils.rm_rf(dirBuild)
+
+		if (File.directory?(dirBuild)) 
+
+			Dir.entries(dirBuild).select { | strFileName |
+				if (strFileName != '.' && strFileName != '..')
+					filePath = File.join(dirBuild, strFileName)
+					puts "Deleting " + filePath
+					FileUtils.rm_rf(filePath)
+				
+				
+			
+				end
+			}
+		end
+		
+	end
+
+end
+
+
+def compileWindows(games)
+	games.each do | game |
+		puts "Windows compile: #{game.name}"
+		dirProject = File.join(PROJECTS_DIR, game.name)
+		dirBuild = File.join(PROJECTS_DIR, game.name, "build", "#{game.name}Windows")
+		puts "build directory #{dirBuild}"
+		
+		if (!File.directory?(File.join(PROJECTS_DIR, game.name, "build")))
+			FileUtils.mkdir(File.join(PROJECTS_DIR, game.name, "build"))
+		else
+			FileUtils.rm_rf(dirBuild)
+		
+		end
+		
+		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
+		puts strCommand
+		system(strCommand)
+		
+	end
+end
+
+def compileMac(games)
+	games.each do | game |
+		puts "Mac compile: #{game.name}"
+		dirProject = File.join(PROJECTS_DIR, game.name)
+		dirBuild = File.join(PROJECTS_DIR, game.name, "build", "#{game.name}Mac")
+		puts "build directory #{dirBuild}"
+		
+		if (!File.directory?(File.join(PROJECTS_DIR, game.name, "build")))
+			FileUtils.mkdir(File.join(PROJECTS_DIR, game.name, "build"))
+		else
+			FileUtils.rm_rf(dirBuild)
+		
+		end
+		
+		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -buildOSXUniversalPlayer ' + File.join(dirBuild, game.name + ".app") + ' -quit'
+		puts strCommand
+		system(strCommand)
+		
+	end
+end
+
+
+def compileLinux(games)
+	games.each do | game |
+		puts "Linux compile: #{game.name}"
+		dirProject = File.join(PROJECTS_DIR, game.name)
+		dirBuild = File.join(PROJECTS_DIR, game.name, "build", "#{game.name}Linux")
+		puts "build directory #{dirBuild}"
+		
+		if (!File.directory?(File.join(PROJECTS_DIR, game.name, "build")))
+			FileUtils.mkdir(File.join(PROJECTS_DIR, game.name, "build"))
+		else
+			FileUtils.rm_rf(dirBuild)
+		
+		end
+		
+		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + File.join(dirBuild, game.name) + ' -quit'
+		puts strCommand
+		system(strCommand)
+		
+	end
+end
+
 
 def main()
 	displayProjects()
