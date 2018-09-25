@@ -354,6 +354,41 @@ def readConfigFile()
 
 end
 
+def getUnityVersion()
+	strEditorLogFile = ENV['USERPROFILE'] + '\AppData\Local\Unity\Editor\Editor.log'
+#	puts "Editor Log: " + strEditorLogFile
+
+
+	strVersion = ""
+#	strCommand = '"' + $config.unity_exe + '"'
+
+	f = File.open(strEditorLogFile, "r")
+	f.each do | line | 
+		if (line =~ /Version is '(.*) \(/)
+			strVersion = $1
+			puts strVersion
+		end
+	
+	end
+	f.close()
+	
+	strConfig = ""
+	f = File.open("unity_version.config", "r")
+	f.each do | line |
+		if (line =~ /UNITY_CURRENT_VERSION/)
+			strConfig << "UNITY_CURRENT_VERSION: " + strVersion + "\n"
+		else
+			strConfig << line
+		end
+	end
+	f.close()
+	
+	f = File.open("unity_version.config", "w")
+	f.puts strConfig
+	f.close()
+
+end
+
 def main()
 	readConfigFile
 	displayProjects()
@@ -361,3 +396,4 @@ end
 
 
 #main()
+#getUnityVersion()

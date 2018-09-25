@@ -169,10 +169,10 @@ labelProjectDirectory = Gtk::Label.new
 labelProjectDirectory.label = "Unity Current Version"
 grid.attach(labelProjectDirectory, 0, iRow, 1, 1)
 
-textUnityCurrentVersion = Gtk::Entry.new
-textUnityCurrentVersion.editable = false
-textUnityCurrentVersion.text = $config.unity_current_version
-grid.attach(textUnityCurrentVersion, 1, iRow, 1, 1)
+$textUnityCurrentVersion = Gtk::Entry.new
+$textUnityCurrentVersion.editable = false
+$textUnityCurrentVersion.text = $config.unity_current_version
+grid.attach($textUnityCurrentVersion, 1, iRow, 1, 1)
 
 
 
@@ -195,8 +195,8 @@ button = Gtk::Button.new(:label => "Scan Projects")
 button.signal_connect "clicked" do |_widget|
 	puts "Check"
 	tableRemoveAll()
-#	textResults.buffer.text = displayProjects(textProjectDirectory.text, textUnityCurrentVersion.text)
-	gameProjectsList = displayProjects(textProjectDirectory.text, textUnityCurrentVersion.text)
+#	textResults.buffer.text = displayProjects(textProjectDirectory.text, $textUnityCurrentVersion.text)
+	gameProjectsList = displayProjects(textProjectDirectory.text, $textUnityCurrentVersion.text)
 	
 #	$tableGames = Gtk::Table.new(1, 1, false)
 
@@ -346,6 +346,16 @@ end
 #grid.attach(button, 1, iRow, 1, 1)
 #iRow += 1 
 buttonBox.add(button)
+
+button = Gtk::Button.new(:label => "Update Version")
+button.signal_connect "clicked" do |_widget|
+		getUnityVersion()
+		readConfigFile()
+		$textUnityCurrentVersion.text = $config.unity_current_version
+end
+buttonBox.add(button)
+
+
 
 
 grid.attach(buttonBox, 0, iRow, 2, 1)
