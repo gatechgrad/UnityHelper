@@ -99,17 +99,23 @@ def makeGameProjectRow(gridGames, iRow, gameProject)
 	labelName.show
 	
 	labelVersion = Gtk::Label.new("")
+	isCurrentVersion = true
 	gameProject.versions.each do | version |
 #		labelVersion.label = "#{version.versionNumber} (#{version.fileName})"
 		if (labelVersion.label != "")
 			labelVersion.label += ", "
 		end
+		if (version.versionNumber != $config.unity_current_version)
+			isCurrentVersion = false
+		end
 		labelVersion.label += "#{version.versionNumber}"
 	end
-	if (labelVersion.label != $config.unity_current_version) 
+	
+	#check each version
+	
+#	if (labelVersion.label != $config.unity_current_version) 
+	if (!isCurrentVersion)
 		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 0.5, 0.5, 1.0))
-#	else
-#			labelVersion.override_background_color(:normal, Gdk::RGBA::new(  0.5, 0.5, 0.5, 1.0))
 	end
 	$tableGames.attach_defaults(labelVersion, 2, 3, iRow, iRow + 1)
 	labelVersion.show

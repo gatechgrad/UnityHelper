@@ -60,7 +60,10 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 				Dir.entries(strEntryPath).select { | strFileName |
 					if (strFileName != '.' && strFileName != '..')
 
-						if ((strFileName.end_with? "Editor.csproj") && (strFileName != "Assembly-CSharp-Editor.csproj"))
+#						if ((strFileName.end_with? "Editor.csproj") && (strFileName != "Assembly-CSharp-Editor.csproj"))
+
+						if (strFileName.end_with? ".csproj")
+						
 #							if (!hasPrintedProjectName)
 #								strResult << "#{entry}" + "\n"
 #								hasPrintedProjectName = true
