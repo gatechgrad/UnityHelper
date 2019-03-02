@@ -73,6 +73,99 @@ def makeGameProjectHeaders()
 end
 
 
+def makePlatformCompilePanel()
+
+	$platformCheckbox = Hash.new 
+
+
+	panel = Gtk::Box.new(:vertical, 2)
+
+	
+
+#Windows Checkbox
+	panelRow = Gtk::Box.new(:horizontal, 2)
+	checkboxWindows = Gtk::CheckButton.new()
+	checkboxWindows.width_request = 64
+	checkboxWindows.expand = false
+	checkboxWindows.active = true
+	checkboxWindows.show
+	$platformCheckbox["Windows"] = checkboxWindows
+	panelRow.add(checkboxWindows)
+
+	labelWindows = Gtk::Label.new("Windows")
+	labelWindows.expand = true
+	labelWindows.set_alignment(0, 0.5)
+	panelRow.add(labelWindows)
+	
+	panel.add(panelRow)
+
+
+#Mac Checkbox
+	panelRow = Gtk::Box.new(:horizontal, 2)
+	checkboxMac = Gtk::CheckButton.new()
+	checkboxMac.width_request = 64
+	checkboxMac.expand = false
+	checkboxMac.active = true
+	checkboxMac.show
+	$platformCheckbox["Mac"] = checkboxMac
+	panelRow.add(checkboxMac)
+
+	labelMac = Gtk::Label.new("Mac")
+	labelMac.expand = true
+	labelMac.set_alignment(0, 0.5)
+	panelRow.add(labelMac)
+	
+	panel.add(panelRow)
+	
+
+#Linux Checkbox
+	panelRow = Gtk::Box.new(:horizontal, 2)
+	checkboxLinux = Gtk::CheckButton.new()
+	checkboxLinux.width_request = 64
+	checkboxLinux.expand = false
+	checkboxLinux.active = true	
+	checkboxLinux.show
+	$platformCheckbox["Linux"] = checkboxLinux
+	panelRow.add(checkboxLinux)
+
+	labelLinux = Gtk::Label.new("Linux")
+	labelLinux.expand = true
+	labelLinux.set_alignment(0, 0.5)
+	panelRow.add(labelLinux)
+	
+	panel.add(panelRow)
+
+
+#WebGL Checkbox
+	panelRow = Gtk::Box.new(:horizontal, 2)
+	checkboxWebgl = Gtk::CheckButton.new()
+	checkboxWebgl.width_request = 64
+	checkboxWebgl.expand = false
+	checkboxWebgl.active = false
+	checkboxWebgl.show
+	$platformCheckbox["WebGL"] = checkboxWebgl
+	panelRow.add(checkboxWebgl)
+
+	labelWebgl = Gtk::Label.new("WebGL")
+	labelWebgl.expand = true
+	labelWebgl.set_alignment(0, 0.5)
+	panelRow.add(labelWebgl)
+	
+	panel.add(panelRow)
+
+
+	button = Gtk::Button.new(:label => "Compile Selected")
+	button.signal_connect "clicked" do |_widget|
+		compileClicked()
+	end
+	panel.add(button)
+
+	
+	return(panel)
+
+
+end
+
 def makeGameProjectRow(gridGames, iRow, gameProject)
 
 	
@@ -144,251 +237,209 @@ end
 
 
 def makeWindow()
-window = Gtk::Window.new("Unity Version")
-window.set_size_request(640, 480)
-window.set_border_width(10)
+	window = Gtk::Window.new("Unity Version")
+	window.set_size_request(640, 480)
+	window.set_border_width(10)
 
 
-iRow = 0
+	iRow = 0
 
-grid = Gtk::Grid.new
-gridGames = Gtk::Grid.new
-gridGames.column_homogeneous = false
-#gridGames.set_property "column-homogeneous", false
-
-
-textResults = Gtk::TextView.new()
-scrolledWindow = Gtk::ScrolledWindow.new()
-
-labelProjectDirectory = Gtk::Label.new
-labelProjectDirectory.label = "Projects Directory"
-grid.attach(labelProjectDirectory, 0, iRow, 1, 1)
-
-textProjectDirectory = Gtk::Entry.new
-textProjectDirectory.editable = false
-textProjectDirectory.text = $config.projects_dir
-grid.attach(textProjectDirectory, 1, iRow, 1, 1)
-
-iRow += 1
-
-labelProjectDirectory = Gtk::Label.new
-labelProjectDirectory.label = "Unity Current Version"
-grid.attach(labelProjectDirectory, 0, iRow, 1, 1)
-
-$textUnityCurrentVersion = Gtk::Entry.new
-$textUnityCurrentVersion.editable = false
-$textUnityCurrentVersion.text = $config.unity_current_version
-grid.attach($textUnityCurrentVersion, 1, iRow, 1, 1)
+	grid = Gtk::Grid.new
+	gridGames = Gtk::Grid.new
+	gridGames.column_homogeneous = false
+	#gridGames.set_property "column-homogeneous", false
 
 
+	textResults = Gtk::TextView.new()
+	scrolledWindow = Gtk::ScrolledWindow.new()
 
+	labelProjectDirectory = Gtk::Label.new
+	labelProjectDirectory.label = "Projects Directory"
+	grid.attach(labelProjectDirectory, 0, iRow, 1, 1)
 
-iRow += 1
-button = Gtk::Button.new(:label => "Scan Projects")
+	textProjectDirectory = Gtk::Entry.new
+	textProjectDirectory.editable = false
+	textProjectDirectory.text = $config.projects_dir
+	grid.attach(textProjectDirectory, 1, iRow, 1, 1)
 
+	iRow += 1
 
-#$tableGames.attach(Gtk::CheckButton.new(), 0, 1, 0, 1, Gtk::AttachOptions::SHRINK, Gtk::AttachOptions::SHRINK, 0, 0)
-#$tableGames.attach(Gtk::Label.new("b"), 1, 2, 0, 1, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::EXPAND, 0, 0)
-#$tableGames.attach(Gtk::Label.new("c"), 2, 3, 0, 1, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::SHRINK, 0, 0)
+	labelProjectDirectory = Gtk::Label.new
+	labelProjectDirectory.label = "Unity Current Version"
+	grid.attach(labelProjectDirectory, 0, iRow, 1, 1)
 
-#$tableGames.attach(Gtk::CheckButton.new(), 0, 1, 1, 2, Gtk::AttachOptions::SHRINK, Gtk::AttachOptions::SHRINK, 0, 0)
-#$tableGames.attach(Gtk::Label.new("e"), 1, 2, 1, 2, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::EXPAND, 0, 0)
-#$tableGames.attach(Gtk::Label.new("f"), 2, 3, 1, 2, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::SHRINK, 0, 0)
+	$textUnityCurrentVersion = Gtk::Entry.new
+	$textUnityCurrentVersion.editable = false
+	$textUnityCurrentVersion.text = $config.unity_current_version
+	grid.attach($textUnityCurrentVersion, 1, iRow, 1, 1)
 
 
 
 
-button.signal_connect "clicked" do |_widget|
-	puts "Check"
-	tableRemoveAll()
-#	textResults.buffer.text = displayProjects(textProjectDirectory.text, $textUnityCurrentVersion.text)
-	gameProjectsList = displayProjects(textProjectDirectory.text, $textUnityCurrentVersion.text)
+	iRow += 1
+	button = Gtk::Button.new(:label => "Scan Projects")
+
+
+	#$tableGames.attach(Gtk::CheckButton.new(), 0, 1, 0, 1, Gtk::AttachOptions::SHRINK, Gtk::AttachOptions::SHRINK, 0, 0)
+	#$tableGames.attach(Gtk::Label.new("b"), 1, 2, 0, 1, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::EXPAND, 0, 0)
+	#$tableGames.attach(Gtk::Label.new("c"), 2, 3, 0, 1, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::SHRINK, 0, 0)
+
+	#$tableGames.attach(Gtk::CheckButton.new(), 0, 1, 1, 2, Gtk::AttachOptions::SHRINK, Gtk::AttachOptions::SHRINK, 0, 0)
+	#$tableGames.attach(Gtk::Label.new("e"), 1, 2, 1, 2, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::EXPAND, 0, 0)
+	#$tableGames.attach(Gtk::Label.new("f"), 2, 3, 1, 2, Gtk::AttachOptions::EXPAND, Gtk::AttachOptions::SHRINK, 0, 0)
+
+	button.signal_connect "clicked" do |_widget|
+		puts "Check"
+		tableRemoveAll()
+	#	textResults.buffer.text = displayProjects(textProjectDirectory.text, $textUnityCurrentVersion.text)
+		gameProjectsList = displayProjects(textProjectDirectory.text, $textUnityCurrentVersion.text)
 	
-#	$tableGames = Gtk::Table.new(1, 1, false)
+	#	$tableGames = Gtk::Table.new(1, 1, false)
 
 
-	makeGameProjectHeaders()
+		makeGameProjectHeaders()
 	
-	textResults.buffer.text = "Games\n" 
-	iGame = 1
+		textResults.buffer.text = "Games\n" 
+		iGame = 1
 	
-	$checkboxArray = Array.new
-	$gameArray = Array.new
+		$checkboxArray = Array.new
+		$gameArray = Array.new
 
 
-	if (!gameProjectsList.nil?)
-		gameProjectsList.each do | game |
+		if (!gameProjectsList.nil?)
+			gameProjectsList.each do | game |
 	
-#		textResults.buffer.text += "Game: #{game.name}\n" 
-			makeGameProjectRow(gridGames, iGame, game)
-			iGame += 1
+	#		textResults.buffer.text += "Game: #{game.name}\n" 
+				makeGameProjectRow(gridGames, iGame, game)
+				iGame += 1
+			end
 		end
 	end
-	
-	
 
 	
 
-puts "Adding new table row"
+	puts "Adding new table row"
 
-makeGameProjectGrid()
-window.set_title("Update table")
+	makeGameProjectGrid()
+	window.set_title("Update table")
 
 
 	
+
+	grid.attach(button, 0, iRow, 1, 1)
+
+
+	button = Gtk::Button.new(:label => "Quit")
+	button.signal_connect "clicked" do |_widget|
+		Gtk.main_quit
+	end
+	grid.attach(button, 1, iRow, 1, 1)
+	iRow += 1 
+
+
+	buttonBox = Gtk::ButtonBox.new(:horizontal)
+
+
+	button = Gtk::Button.new(:label => "Display selected")
+	button.signal_connect "clicked" do |_widget|
+		i = 0
+		strSelected = ""
+		if (!$checkboxArray.nil?)
+			$checkboxArray.each do | checkbox |
+				if (checkbox.active?)
+					strSelected << "#{$gameArray[i].name}\n"
+				end
+				i += 1
+			end
+	
+			md = Gtk::MessageDialog.new :parent => window,
+				:flags => :destroy_with_parent, :type => :info,
+				:buttons_type => :close, :message => "Games Selected\n" + strSelected
+			md.run
+			md.destroy
+		end
+	
+	end
+	
+	buttonBox.add(button)
+
+	buttonBox.add(makePlatformCompilePanel())
+
+	button = Gtk::Button.new(:label => "Clear build folder")
+	button.signal_connect "clicked" do |_widget|
+		clearBuildFolderClicked()
+	end
+	buttonBox.add(button)
+
+
+	button = Gtk::Button.new(:label => "Scan Unity Version")
+	button.signal_connect "clicked" do |_widget|
+			getUnityVersion()
+			readConfigFile()
+			$textUnityCurrentVersion.text = $config.unity_current_version
+	end
+	buttonBox.add(button)
+
+	grid.attach(buttonBox, 0, iRow, 2, 1)
+	iRow += 1
+
+
+	textResults.buffer.text = 'Hello'
+	scrolledWindow.min_content_width = 1200
+	scrolledWindow.min_content_height = 600
+	scrolledWindow.vscrollbar_policy = Gtk::PolicyType::ALWAYS
+
+
+	scrolledWindow.add($tableGames)
+	grid.attach(scrolledWindow, 0, iRow, 2, 1)
+
+
+
+	window.add(grid)
+	window.signal_connect("delete-event") { |_widget| Gtk.main_quit }
+	window.show_all
+
+	Gtk.main
+
 end
 
-grid.attach(button, 0, iRow, 1, 1)
 
+def compileClicked() 
 
-button = Gtk::Button.new(:label => "Quit")
-button.signal_connect "clicked" do |_widget|
-	Gtk.main_quit
-end
-grid.attach(button, 1, iRow, 1, 1)
-iRow += 1 
-
-
-#Add button row
-#panelButtons = Gtk::Alignment.new(0, 0, 0, 0)
-#hbox = Gtk::Box.new(:horizontal, 5)
-
-
-#halign = Gtk::Alignment.new(1, 0, 0, 0)
-#halign.add(hbox)
-
-#grid.attach(halign, 1, iRow, 1, 1)
-buttonBox = Gtk::ButtonBox.new(:horizontal)
-
-#labelTemp = Gtk::Label.new
-#labelTemp.label = "Temp 1"
-#buttonBox.add(labelTemp)
-
-#labelTemp = Gtk::Label.new
-#labelTemp.label = "Temp 2"
-#buttonBox.add(labelTemp)
-
-#labelTemp = Gtk::Label.new
-#labelTemp.label = "Temp 3"
-#buttonBox.add(labelTemp)
-
-
-#grid.attach(buttonBox, 0, iRow, 2, 1)
-#iRow += 1
-
-
-
-
-
-button = Gtk::Button.new(:label => "Display selected")
-button.signal_connect "clicked" do |_widget|
-	i = 0
-	strSelected = ""
-	if (!$checkboxArray.nil?)
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
 		$checkboxArray.each do | checkbox |
 			if (checkbox.active?)
-				strSelected << "#{$gameArray[i].name}\n"
-			end
+				selectedArray << $gameArray[i]
+			end	
 			i += 1
 		end
-	
-		md = Gtk::MessageDialog.new :parent => window,
-			:flags => :destroy_with_parent, :type => :info,
-			:buttons_type => :close, :message => "Games Selected\n" + strSelected
-		md.run
-		md.destroy
+		
+#		compile(selectedArray)
+		if ($platformCheckbox["Windows"].active?)
+			compileWindows(selectedArray)
+		end
+		
+		if ($platformCheckbox["Mac"].active?)
+			compileMac(selectedArray)
+		end
+
+		if ($platformCheckbox["Linux"].active?)
+			compileLinux(selectedArray)
+		end
+		
+		if ($platformCheckbox["WebGL"].active?)
+			compileWebGL(selectedArray)
+		end
+		
+	else
+		puts "No games selected"
 	end
-	
-	
-							 
-	
-end
-#grid.attach(button, 1, iRow, 1, 1)
-#iRow += 1 
-buttonBox.add(button)
-
-
-
-
-button = Gtk::Button.new(:label => "Compile Selected - WebGL")
-button.signal_connect "clicked" do |_widget|
-		compileWebGLClicked()
-
-end
-#grid.attach(button, 1, iRow, 1, 1)
-#iRow += 1 
-buttonBox.add(button)
-
-
-button = Gtk::Button.new(:label => "Clear build folder")
-button.signal_connect "clicked" do |_widget|
-		clearBuildFolderClicked()
-end
-#grid.attach(button, 1, iRow, 1, 1)
-#iRow += 1 
-buttonBox.add(button)
-
-button = Gtk::Button.new(:label => "Compile Windows")
-button.signal_connect "clicked" do |_widget|
-		compileWindowsClicked()
-end
-#grid.attach(button, 1, iRow, 1, 1)
-#iRow += 1 
-buttonBox.add(button)
-
-
-button = Gtk::Button.new(:label => "Compile Mac")
-button.signal_connect "clicked" do |_widget|
-		compileMacClicked()
-end
-#grid.attach(button, 1, iRow, 1, 1)
-#iRow += 1 
-buttonBox.add(button)
-
-button = Gtk::Button.new(:label => "Compile Linux")
-button.signal_connect "clicked" do |_widget|
-		compileLinuxClicked()
-end
-#grid.attach(button, 1, iRow, 1, 1)
-#iRow += 1 
-buttonBox.add(button)
-
-button = Gtk::Button.new(:label => "Update Version")
-button.signal_connect "clicked" do |_widget|
-		getUnityVersion()
-		readConfigFile()
-		$textUnityCurrentVersion.text = $config.unity_current_version
-end
-buttonBox.add(button)
-
-
-
-
-grid.attach(buttonBox, 0, iRow, 2, 1)
-iRow += 1
-
-
-textResults.buffer.text = 'Hello'
-scrolledWindow.min_content_width = 800
-scrolledWindow.min_content_height = 600
-scrolledWindow.vscrollbar_policy = Gtk::PolicyType::ALWAYS
-
-#scrolledWindow.add(textResults)
-#scrolledWindow.add(gridGames)
-
-scrolledWindow.add($tableGames)
-grid.attach(scrolledWindow, 0, iRow, 2, 1)
-
-
-
-window.add(grid)
-window.signal_connect("delete-event") { |_widget| Gtk.main_quit }
-window.show_all
-
-Gtk.main
 
 end
 
+=begin
 def compileWebGLClicked() 
 
 	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
@@ -466,7 +517,7 @@ def compileLinuxClicked()
 	end
 
 end
-
+=end
 
 def toggleAllCheckboxes(checked) 
 	if (checked)
