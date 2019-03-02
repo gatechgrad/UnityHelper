@@ -1,7 +1,9 @@
-### 2018 Levi D. Smith
+### 2018, 2019 Levi D. Smith
 ### levidsmith.com
 
 require 'fileutils'
+require 'zip' #gem install rubyzip
+require_relative 'zip_example_recursive'
 
 #PROJECTS_DIR='E:/ldsmith/projects'
 #UNITY_CURRENT_VERSION = "2018.2.6f1"
@@ -231,6 +233,54 @@ def compileWebGL(games)
 		
 		
 	end
+
+end
+
+def makeZipFiles(games)
+	games.each do | game |
+		puts "Zip build folders: #{game.name}"
+#		dirProject = File.join($config.projects_dir, game.name)
+		dirBuild = File.join($config.projects_dir, game.name, "build")
+		puts "build directory #{dirBuild}"
+		
+#		if (!File.directory?(File.join($config.projects_dir, game.name, "build")))
+#			FileUtils.mkdir(File.join($config.projects_dir, game.name, "build"))
+#		else
+#			FileUtils.rm_rf(dirBuild)
+#		end
+		
+#		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
+#		puts strCommand
+#		system(strCommand)
+
+		Dir.entries(dirBuild).select { | entry |
+			strDirToZip = File.join(dirBuild, entry)
+			if (entry != "." && entry != ".." && File.directory?(strDirToZip))
+				strZipFile = File.join(dirBuild, entry + '.zip')
+				puts "Zipping " + strDirToZip + " " + strZipFile
+				
+				if (File.exist?(strZipFile))
+						FileUtils.rm(strZipFile)
+				end
+				
+				zf = ZipFileGenerator.new(strDirToZip, strZipFile)
+				zf.write()
+
+#				strZipFile = File.join(dirBuild, entry + '.zip')
+#				Zip::OutputStream.open(strZipFile) do | zos |
+#				zos.put_next_entry('first entry')
+#				zos.puts 'one two three'
+#				zos.put_next_entry('second entry')
+#				zos.puts 'four five six'
+#				end
+			end
+		
+		}
+
+		
+	end
+
+
 
 end
 

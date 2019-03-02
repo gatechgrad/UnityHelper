@@ -1,4 +1,4 @@
-### 2018 Levi D. Smith
+### 2018, 2019 Levi D. Smith
 ### levidsmith.com
 
 require 'gtk3'
@@ -153,6 +153,24 @@ def makePlatformCompilePanel()
 	
 	panel.add(panelRow)
 
+	
+#Make ZIP files Checkbox
+	panelRow = Gtk::Box.new(:horizontal, 2)
+	checkboxMakeZip = Gtk::CheckButton.new()
+	checkboxMakeZip.width_request = 64
+	checkboxMakeZip.expand = false
+	checkboxMakeZip.active = true
+	checkboxMakeZip.show
+	$platformCheckbox["MakeZip"] = checkboxMakeZip
+	panelRow.add(checkboxMakeZip)
+
+	labelMakeZip = Gtk::Label.new("Make ZIP files")
+	labelMakeZip.expand = true
+	labelMakeZip.set_alignment(0, 0.5)
+	panelRow.add(labelMakeZip)
+	
+	panel.add(panelRow)
+	
 
 	button = Gtk::Button.new(:label => "Compile Selected")
 	button.signal_connect "clicked" do |_widget|
@@ -432,6 +450,11 @@ def compileClicked()
 		if ($platformCheckbox["WebGL"].active?)
 			compileWebGL(selectedArray)
 		end
+		
+		if ($platformCheckbox["MakeZip"].active?)
+			makeZipFiles(selectedArray)
+		end
+
 		
 	else
 		puts "No games selected"
