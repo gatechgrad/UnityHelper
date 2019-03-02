@@ -210,23 +210,47 @@ def makeGameProjectRow(gridGames, iRow, gameProject)
 	labelName.show
 	
 	labelVersion = Gtk::Label.new("")
-	isCurrentVersion = true
+#	isCurrentVersion = true
+	isCurrentMajorVersion = true
+	isCurrentMinorVersion = true
+	isCurrentMinorMinorVersion = true
+	
+	versionNumbers = Array.new
 	gameProject.versions.each do | version |
+		versionNumbers << version.versionNumber
+	end
+	
+	versionNumbers.uniq.each do | vn |
+#	gameProject.versions.each do | version |
 #		labelVersion.label = "#{version.versionNumber} (#{version.fileName})"
 		if (labelVersion.label != "")
 			labelVersion.label += ", "
 		end
-		if (version.versionNumber != $config.unity_current_version)
-			isCurrentVersion = false
+#		if (version.versionNumber != $config.unity_current_version)
+#		if (vn != $config.unity_current_version)
+#			isCurrentVersion = false
+#		end
+		
+		vnMajorMinor = vn.split('.')
+		unityMajorMinor = $config.unity_current_version.split('.')
+		
+		if (vnMajorMinor[0] != unityMajorMinor[0] || vnMajorMinor[1] != unityMajorMinor[1])
+			isCurrentMajorVersion = false
+		elsif (vnMajorMinor[2] != unityMajorMinor[2])
+			isCurrentMinorVersion = false
 		end
-		labelVersion.label += "#{version.versionNumber}"
+		labelVersion.label += "#{vn}"
 	end
 	
 	#check each version
 	
 #	if (labelVersion.label != $config.unity_current_version) 
-	if (!isCurrentVersion)
+	if (!isCurrentMajorVersion)
 		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 0.5, 0.5, 1.0))
+	elsif (!isCurrentMinorVersion)
+		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 1.0, 0.5, 1.0))
+	elsif (!isCurrentMinorMinorVersion)
+		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 1.0, 1.0, 1.0))
 	end
 	$tableGames.attach_defaults(labelVersion, 2, 3, iRow, iRow + 1)
 	labelVersion.show
