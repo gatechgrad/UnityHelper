@@ -4,17 +4,14 @@
 require 'fileutils'
 require 'zip' #gem install rubyzip
 require_relative 'zip_example_recursive'
-
-#PROJECTS_DIR='E:/ldsmith/projects'
-#UNITY_CURRENT_VERSION = "2018.2.6f1"
-#PLAYMAKER_CURRENT_VERSION = "1.9.0"
-#UNITY_EXE = 'E:/Program Files/Unity/Editor/Unity.exe'
+require_relative 'make_itch_upload_script'
 
 class Config
 	attr_accessor :projects_dir
 	attr_accessor :unity_current_version
 	attr_accessor :playmaker_current_version
 	attr_accessor :unity_exe
+	attr_accessor :scan_projects_on_startup
 end
 
 class GameProject
@@ -55,21 +52,14 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 				game = GameProject.new
 			
 				
-#				hasPrintedProjectName = false
 				game.name = entry
 				game.versions = Array.new
 				
 				Dir.entries(strEntryPath).select { | strFileName |
 					if (strFileName != '.' && strFileName != '..')
 
-#						if ((strFileName.end_with? "Editor.csproj") && (strFileName != "Assembly-CSharp-Editor.csproj"))
 
 						if (strFileName.end_with? ".csproj")
-						
-#							if (!hasPrintedProjectName)
-#								strResult << "#{entry}" + "\n"
-#								hasPrintedProjectName = true
-#							end
 						
 							strEditorFile = File.join(strEntryPath, strFileName)
 							f = File.open(strEditorFile, "r")
@@ -95,10 +85,6 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 				strProjectVersionFile = 'ProjectSettings/ProjectVersion.txt'
 				strProjectVersionPath = File.join(strEntryPath, strProjectVersionFile)
 				if (File.file?(strProjectVersionPath))
-#					if (!hasPrintedProjectName)
-#						strResult << "#{entry}" + "\n"
-#						hasPrintedProjectName = true
-#					end
 
 					f = File.open(strProjectVersionPath, "r")
 					f.each do | line |
@@ -139,7 +125,6 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 					f.each do | line |
 						if (line =~ /InstallCurrentVersion = "(.*)";/)
 							strVersion = $1
-#							strResult << "  PlayMaker Version: " + $1
 							
 							game.playmaker_version = $1
 							
@@ -147,11 +132,9 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 					end
 					f.close
 
-#					game.playmaker_version = '?'
 
 				
 				end
-#				game.playmaker_version = '??'
 				
 
 				gameProjectList << game
@@ -162,9 +145,6 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 	}
 	
 	
-#	puts strResult
-	
-#	return strResult
 	return gameProjectList
 end
 
@@ -175,10 +155,6 @@ def compileWebGL(games)
 		dirBuild = File.join($config.projects_dir, game.name, "build", "#{game.name}WebGL")
 		puts "build directory #{dirBuild}"
 		FileUtils.rm_rf(dirBuild)
-		
-		
-#		strCommand = '"' + UNITY_EXE + '" -batchmode -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + dirBuild + ' -quit'
-#		strCommand = '"' + UNITY_EXE + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + dirBuild + ' -quit'
 
 #Must generate the build script first...
 		strBuildContents = ""
@@ -239,20 +215,9 @@ end
 def makeZipFiles(games)
 	games.each do | game |
 		puts "Zip build folders: #{game.name}"
-#		dirProject = File.join($config.projects_dir, game.name)
 		dirBuild = File.join($config.projects_dir, game.name, "build")
 		puts "build directory #{dirBuild}"
 		
-#		if (!File.directory?(File.join($config.projects_dir, game.name, "build")))
-#			FileUtils.mkdir(File.join($config.projects_dir, game.name, "build"))
-#		else
-#			FileUtils.rm_rf(dirBuild)
-#		end
-		
-#		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
-#		puts strCommand
-#		system(strCommand)
-
 		Dir.entries(dirBuild).select { | entry |
 			strDirToZip = File.join(dirBuild, entry)
 			if (entry != "." && entry != ".." && File.directory?(strDirToZip))
@@ -266,13 +231,6 @@ def makeZipFiles(games)
 				zf = ZipFileGenerator.new(strDirToZip, strZipFile)
 				zf.write()
 
-#				strZipFile = File.join(dirBuild, entry + '.zip')
-#				Zip::OutputStream.open(strZipFile) do | zos |
-#				zos.put_next_entry('first entry')
-#				zos.puts 'one two three'
-#				zos.put_next_entry('second entry')
-#				zos.puts 'four five six'
-#				end
 			end
 		
 		}
@@ -399,6 +357,13 @@ def readConfigFile()
 			$config.playmaker_current_version = $1
 		end
 		
+		if (line =~ /SCAN_PROJECTS_ON_STARTUP: (.*)/)
+			if ($1.upcase == "TRUE")
+				$config.scan_projects_on_startup = true
+			else 
+				$config.scan_projects_on_startup = false
+			end
+		end
 		
 	end
 	
@@ -409,11 +374,9 @@ end
 
 def getUnityVersion()
 	strEditorLogFile = ENV['USERPROFILE'] + '\AppData\Local\Unity\Editor\Editor.log'
-#	puts "Editor Log: " + strEditorLogFile
 
 
 	strVersion = ""
-#	strCommand = '"' + $config.unity_exe + '"'
 
 	f = File.open(strEditorLogFile, "r")
 	f.each do | line | 
@@ -442,11 +405,12 @@ def getUnityVersion()
 
 end
 
+def makeUploadScript(game, strProjectIdentifier)
+	makeItchUploadScript(game.name, strProjectIdentifier, $config.projects_dir)
+
+end
+
 def main()
 	readConfigFile
 	displayProjects()
 end
-
-
-#main()
-#getUnityVersion()
