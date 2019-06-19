@@ -177,7 +177,7 @@ def compileWebGL(games)
 
 		
 		
-		fTempFile = File.open("MyEditorScript.cs.template", "r")
+		fTempFile = File.open("EditorScript.cs.template", "r")
 		fTempFile.each do | line |
 			if (line =~ /(.*)(%NAME%)(.*)/)
 				strBuildContents << $1 << game.name << $3 << "\n"
@@ -195,19 +195,35 @@ def compileWebGL(games)
 		if (!File.directory?(File.join(dirProject, "Assets/Editor")) )
 			FileUtils.mkdir(File.join(dirProject, "Assets/Editor"))
 		end 
-		File.open(File.join(dirProject, "Assets/Editor/MyEditorScript.cs"), 'w') { | file |
+		File.open(File.join(dirProject, "Assets/Editor/EditorScript.cs"), 'w') { | file |
 			file.write(strBuildContents)
 		
 		}
 
 		
 		
-		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod MyEditorScript.PerformBuild -quit'
+		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod EditorScript.PerformBuild -quit'
 		puts strCommand
 		system(strCommand)
 		
 		
 		
+	end
+
+end
+
+def copyAutoSaveScript(games) 
+	games.each do | game |
+		dirProject = File.join($config.projects_dir, game.name)
+
+		if (!File.directory?(File.join(dirProject, "Assets/Editor")) )
+			FileUtils.mkdir(File.join(dirProject, "Assets/Editor"))
+		end 
+
+
+		FileUtils.cp("AutoSave.cs.template", File.join(dirProject, "Assets/Editor/AutoSave.cs"))
+		FileUtils.cp("images/splash_background.png", File.join(dirProject, "Assets/Sprites/splash_background.png"))
+		FileUtils.cp("images/splash_logo.jpg", File.join(dirProject, "Assets/Sprites/splash_logo.jpg"))
 	end
 
 end

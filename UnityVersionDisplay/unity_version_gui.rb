@@ -328,6 +328,17 @@ def makeWindow()
 	button.signal_connect "clicked" do |_widget|
 		scanUnityVersion()
 	end
+#	buttonBox.add(button)
+
+
+
+##Copy scripts to project
+	button = Gtk::Button.new(:label => "Copy scripts")
+	button.signal_connect "clicked" do |_widget|
+		copyScriptsClicked()
+	end
+	buttonBox.add(button)
+
 	
 ## Make Upload Script button	
 	button = Gtk::Button.new(:label => "Make Upload Script")
@@ -522,6 +533,26 @@ def clearBuildFolderClicked()
 
 
 end
+
+def copyScriptsClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		copyAutoSaveScript(selectedArray)
+	else
+		puts "No games selected"
+	end
+
+
+end
+
 
 def scanUnityVersion() 
 			getUnityVersion()

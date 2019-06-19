@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
 
-public class MyEditorScript {
-    [MenuItem("MyTools/WebGL build")]
+public class EditorScript {
+    [MenuItem("Build/WebGL build")]
     public static void PerformBuild() {
         List<string> scenes = new List<string>();
         foreach(EditorBuildSettingsScene scene in EditorBuildSettings.scenes) {
@@ -14,16 +14,3 @@ public class MyEditorScript {
         BuildPipeline.BuildPlayer(scenes.ToArray(), "build/%NAME%WebGL", BuildTarget.WebGL, BuildOptions.None);
     }
 }
-
-
-/*
-using UnityEditor;
-
-public class MyEditorScript {
-    [MenuItem("MyTools/WebGL build")]
-    public static void PerformBuild() {
-        string[] scenes = { %SCENES% };
-        BuildPipeline.BuildPlayer(scenes, "build/%NAME%WebGL", BuildTarget.WebGL, BuildOptions.None);
-    }
-}
-*/
