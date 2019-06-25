@@ -1,0 +1,1 @@
+Add splash_background.png and splash_logo.jpg to this folder.  You still have to convert them to 2D/UI sprites in Unity, and assign to the splash logo and background under build settings in Unity (until I figure out how to automate it).
