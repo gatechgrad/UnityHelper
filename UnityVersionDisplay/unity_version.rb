@@ -222,8 +222,19 @@ def copyAutoSaveScript(games)
 
 
 		FileUtils.cp("AutoSave.cs.template", File.join(dirProject, "Assets/Editor/AutoSave.cs"))
-		FileUtils.cp("images/splash_background.png", File.join(dirProject, "Assets/Sprites/splash_background.png"))
-		FileUtils.cp("images/splash_logo.jpg", File.join(dirProject, "Assets/Sprites/splash_logo.jpg"))
+
+		if (!File.directory?(File.join(dirProject, "Assets/Sprites")) )
+			FileUtils.mkdir(File.join(dirProject, "Assets/Sprites"))
+		end 
+
+		
+		if (!File.directory?(File.join(dirProject, "Assets/Sprites/SplashScreen")) )
+			FileUtils.mkdir(File.join(dirProject, "Assets/Sprites/SplashScreen"))
+		end 
+
+		
+		FileUtils.cp("images/splash_background.png", File.join(dirProject, "Assets/Sprites/SplashScreen/splash_background.png"))
+		FileUtils.cp("images/splash_logo.jpg", File.join(dirProject, "Assets/Sprites/SplashScreen/splash_logo.jpg"))
 	end
 
 end

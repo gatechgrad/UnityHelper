@@ -2,6 +2,8 @@
 ### levidsmith.com
 
 require 'gtk3'
+require 'win32/sound'
+include Win32
 require_relative 'unity_version'
 
 $tableGames = Gtk::Table.new(1, 1, false)
@@ -316,12 +318,26 @@ def makeWindow()
 
 
 
+## Make build box
+	buildBox = Gtk::ButtonBox.new(:vertical)
+	
 ##Clear build folder button
 	button = Gtk::Button.new(:label => "Clear build folder")
 	button.signal_connect "clicked" do |_widget|
 		clearBuildFolderClicked()
 	end
-	buttonBox.add(button)
+	buildBox.add(button)
+
+
+##Open build folder
+	button = Gtk::Button.new(:label => "Open build folder")
+	button.signal_connect "clicked" do |_widget|
+		openBuildFolderClicked()
+	end
+	buildBox.add(button)
+	
+	buttonBox.add(buildBox)
+
 
 ##Scan Unity version button
 	button = Gtk::Button.new(:label => "Scan Unity Version")
@@ -434,11 +450,15 @@ def compileClicked()
 			makeZipFiles(selectedArray)
 		end
 		
+		Sound.play('.\sounds\jobsdone.wav')
+
+		
 		md = Gtk::MessageDialog.new :parent => $mainWindow,
 				:flags => :destroy_with_parent, :type => :info,
 				:buttons_type => :close, :message => "Tasks completed"
 		md.run
 		md.destroy
+		
 		
 	else
 		puts "No games selected"
@@ -530,9 +550,37 @@ def clearBuildFolderClicked()
 	else
 		puts "No games selected"
 	end
+end
+
+def openBuildFolderClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		selectedArray.each do | game |
+			dirProject = File.join($config.projects_dir, game.name)
+			strPath = File.join(dirProject, "build").gsub(File::SEPARATOR, File::ALT_SEPARATOR)
+			puts "Opening folder #{strPath}"
+			##  Only Windows Explorer for now
+			strCommand = 'explorer %s' % strPath
+			system('explorer %s' % strPath)
+		
+		end
+
+		
+	else
+		puts "No games selected"
+	end
 
 
 end
+
 
 def copyScriptsClicked() 
 	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
