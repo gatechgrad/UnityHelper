@@ -8,6 +8,7 @@ require_relative 'unity_version'
 
 $tableGames = Gtk::Table.new(1, 1, false)
 $checkboxArray
+$labelArray
 $gameArray
 
 
@@ -173,6 +174,17 @@ def makeGameProjectRow(iRow, gameProject)
 
 	
 	gameCheckbox = Gtk::CheckButton.new()
+	gameCheckbox.signal_connect "clicked" do |_widget|
+		puts "clicked #{$gameArray[iRow - 1].name}"
+		if (_widget.active?) 
+			selectedColor = Gdk::RGBA::new(  0.8, 0.8, 1.0, 1.0);
+		else 
+			selectedColor = Gdk::RGBA::new(  0.9, 0.9, 0.9, 1.0);
+		end
+		$labelArray[iRow - 1].override_background_color(:normal, selectedColor)
+
+	end
+
 	$checkboxArray << gameCheckbox
 
 	$tableGames.attach(gameCheckbox, 0, 1, iRow, iRow + 1, Gtk::AttachOptions::SHRINK, Gtk::AttachOptions::SHRINK, 0, 0)
@@ -185,6 +197,7 @@ def makeGameProjectRow(iRow, gameProject)
 	labelName = Gtk::Label.new(gameProject.name)
 	labelName.expand = true
 	labelName.set_alignment(0, 0.5)
+	$labelArray << labelName
 #	labelName.override_background_color(:normal, Gdk::RGBA::new(  1.0, 1.0, 1.0, 1.0))
 	
 	$gameArray << gameProject
@@ -406,6 +419,7 @@ def scanProjects()
 	
 		$checkboxArray = Array.new
 		$gameArray = Array.new
+		$labelArray = Array.new
 
 
 		if (!gameProjectsList.nil?)
