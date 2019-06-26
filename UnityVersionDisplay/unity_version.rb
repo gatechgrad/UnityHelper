@@ -222,6 +222,7 @@ def copyAutoSaveScript(games)
 
 
 		FileUtils.cp("AutoSave.cs.template", File.join(dirProject, "Assets/Editor/AutoSave.cs"))
+		FileUtils.cp("PackageRemover.cs.template", File.join(dirProject, "Assets/Editor/PackageRemover.cs"))
 
 		if (!File.directory?(File.join(dirProject, "Assets/Sprites")) )
 			FileUtils.mkdir(File.join(dirProject, "Assets/Sprites"))
