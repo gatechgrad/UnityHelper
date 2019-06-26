@@ -1,7 +1,7 @@
 Download and install Ruby if you don't already have it.
 https://www.ruby-lang.org/en/
 
-Navigate to the UnityHelper/UnityVersionDisplay directory and run:
+Navigate to the UnityHelper directory and run:
 > ruby unity_version_gui.rb
 
 Install the following gems
