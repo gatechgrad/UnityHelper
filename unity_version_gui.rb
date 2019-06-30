@@ -352,6 +352,17 @@ def makeWindow()
 	buttonBox.add(buildBox)
 
 
+##Clear VS project files
+	button = Gtk::Button.new(:label => "Clear VS files")
+	button.signal_connect "clicked" do |_widget|
+		clearVSFilesClicked()
+	end
+	buildBox.add(button)
+	
+	buttonBox.add(buildBox)
+
+
+
 ##Scan Unity version button
 	button = Gtk::Button.new(:label => "Scan Unity Version")
 	button.signal_connect "clicked" do |_widget|
@@ -565,6 +576,24 @@ def clearBuildFolderClicked()
 		puts "No games selected"
 	end
 end
+
+def clearVSFilesClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		deleteVisualStudioProjectFiles(selectedArray)
+	else
+		puts "No games selected"
+	end
+end
+
 
 def openBuildFolderClicked() 
 	if (!$checkboxArray.nil? && $checkboxArray.count > 0)

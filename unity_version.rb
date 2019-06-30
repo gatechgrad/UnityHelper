@@ -48,7 +48,8 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 		if (entry != '.' || entry != '..')
 			
 			strEntryPath = File.join(strProjectsDir, entry)
-			if (File.directory?(strEntryPath) && File.directory?(strEntryPath + "/Assets") )
+#			unityScenes = Dir.glob(strEntryPath + "/**/*.unity")
+			if (File.directory?(strEntryPath) && File.directory?(strEntryPath + "/Assets"))
 				game = GameProject.new
 			
 				
@@ -277,9 +278,6 @@ def clearBuildFolder(games)
 		dirBuild = File.join($config.projects_dir, game.name, "build")
 		puts "Clearing: #{dirBuild}"
 
-#		puts "build directory #{dirBuild}"
-#		FileUtils.rm_rf(dirBuild)
-
 		if (File.directory?(dirBuild)) 
 
 			Dir.entries(dirBuild).select { | strFileName |
@@ -287,6 +285,45 @@ def clearBuildFolder(games)
 					filePath = File.join(dirBuild, strFileName)
 					puts "Deleting " + filePath
 					FileUtils.rm_rf(filePath)
+				
+				
+			
+				end
+			}
+		end
+		
+	end
+
+end
+
+def deleteVisualStudioProjectFiles(games)
+	games.each do | game |
+		dirProject = File.join($config.projects_dir, game.name)
+#		dirBuild = File.join($config.projects_dir, game.name, "build")
+#		puts "Clearing: #{dirBuild}"
+
+
+
+		if (File.directory?(dirProject)) 
+
+			Dir.entries(dirProject).select { | strFileName |
+				if (strFileName != '.' && strFileName != '..')
+					if (strFileName =~ /(.*).csproj/)
+						
+
+						filePath = File.join(dirProject, strFileName)
+						puts "Deleting: #{filePath}"
+						#puts "Deleting " + filePath
+						FileUtils.rm_rf(filePath)
+					end
+
+					if (strFileName =~ /(.*).sln/)
+						
+
+						filePath = File.join(dirProject, strFileName)
+						puts "Deleting: #{filePath}"
+						FileUtils.rm_rf(filePath)
+					end
 				
 				
 			
