@@ -315,7 +315,7 @@ def makeWindow()
 
 
 	puts "Adding new table row"
-	window.set_title("Unity Version Display - 2019 Levi D. Smith")
+	window.set_title("Unity Build Tool - 2019 Levi D. Smith")
 
 
 
@@ -323,12 +323,23 @@ def makeWindow()
 	buttonBox.add(makePlatformCompilePanel())
 
 ## Scan Projects button
+	scanBox = Gtk::ButtonBox.new(:vertical)
+	
 	button = Gtk::Button.new(:label => "Scan Projects")
 	button.signal_connect "clicked" do |_widget|
 		scanProjects()
 	end
-	buttonBox.add(button)
+	scanBox.add(button)
 
+## Find Unity Scenes
+	button = Gtk::Button.new(:label => "Find Unity Scenes")
+	button.signal_connect "clicked" do |_widget|
+		findUnityScenesClicked()
+	end
+	scanBox.add(button)
+
+
+	buttonBox.add(scanBox)
 
 
 ## Make build box
@@ -349,7 +360,7 @@ def makeWindow()
 	end
 	buildBox.add(button)
 	
-	buttonBox.add(buildBox)
+#	buttonBox.add(buildBox)
 
 
 ##Clear VS project files
@@ -358,6 +369,44 @@ def makeWindow()
 		clearVSFilesClicked()
 	end
 	buildBox.add(button)
+
+##Remove default packages
+	button = Gtk::Button.new(:label => "Remove Default Packages")
+	button.signal_connect "clicked" do |_widget|
+		removeDefaultPackagesClicked()
+	end
+	buildBox.add(button)
+
+##Update API
+	button = Gtk::Button.new(:label => "Update API")
+	button.signal_connect "clicked" do |_widget|
+		updateAPIClicked()
+	end
+	buildBox.add(button)
+
+##Update Project Settings
+	button = Gtk::Button.new(:label => "Update Project Settings")
+	button.signal_connect "clicked" do |_widget|
+		updateProjectSettingsClicked()
+	end
+	buildBox.add(button)
+
+
+##Delete Obsolete Scripts
+	button = Gtk::Button.new(:label => "Delete Obsolete Scripts")
+	button.signal_connect "clicked" do |_widget|
+		deleteObsoleteScriptsClicked()
+	end
+	buildBox.add(button)
+
+
+##Display package cache
+	button = Gtk::Button.new(:label => "Display Package Cache")
+	button.signal_connect "clicked" do |_widget|
+		displayPackageCacheClicked()
+	end
+	buildBox.add(button)
+
 	
 	buttonBox.add(buildBox)
 
@@ -401,7 +450,8 @@ def makeWindow()
 
 	textResults.buffer.text = 'Hello'
 	scrolledWindow.min_content_width = 1200
-	scrolledWindow.min_content_height = 600
+#	scrolledWindow.min_content_height = 600
+	scrolledWindow.min_content_height = 400
 	scrolledWindow.vscrollbar_policy = Gtk::PolicyType::ALWAYS
 
 
@@ -536,6 +586,9 @@ def makeUploadScriptAllSelected()
 
 		end
 		
+		Sound.play('.\sounds\jobsdone.wav')
+
+		
 		
 		
 	end
@@ -589,6 +642,10 @@ def clearVSFilesClicked()
 		end
 		
 		deleteVisualStudioProjectFiles(selectedArray)
+		
+		Sound.play('.\sounds\jobsdone.wav')
+
+		
 	else
 		puts "No games selected"
 	end
@@ -637,12 +694,186 @@ def copyScriptsClicked()
 		end
 		
 		copyAutoSaveScript(selectedArray)
+
+		Sound.play('.\sounds\jobsdone.wav')
+		
+		
 	else
 		puts "No games selected"
 	end
 
 
 end
+
+def removeDefaultPackagesClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		removeDefaultPackages(selectedArray)
+
+		Sound.play('.\sounds\jobsdone.wav')
+
+	else
+		puts "No games selected"
+	end
+
+
+end
+
+def updateAPIClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		updateAPI(selectedArray)
+		
+		Sound.play('.\sounds\jobsdone.wav')
+
+	else
+		puts "No games selected"
+	end
+
+
+end
+
+
+def deleteObsoleteScriptsClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		deleteObsoleteScripts(selectedArray)
+		
+		Sound.play('.\sounds\jobsdone.wav')
+
+	else
+		puts "No games selected"
+	end
+
+
+end
+
+
+def updateProjectSettingsClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		updateProjectSettings(selectedArray)
+		
+		Sound.play('.\sounds\jobsdone.wav')
+
+	else
+		puts "No games selected"
+	end
+
+
+end
+
+
+
+
+def findUnityScenesClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		strResult = findUnityScenes(selectedArray)
+		
+		
+				md = Gtk::MessageDialog.new :parent => $mainWindow,
+				:flags => :destroy_with_parent, :type => :info,
+				:buttons_type => :close, :message => "Unity scenes\n" + strResult
+		md.run
+		md.destroy
+
+		
+	else
+		puts "No games selected"
+	end
+
+end
+
+
+def displayPackageCacheClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		strResult = displayPackageCache(selectedArray)
+		
+		
+#				md = Gtk::MessageDialog.new :parent => $mainWindow,
+#				:flags => :destroy_with_parent, :type => :info,
+#				:buttons_type => :close, :message => "PackageCache\n" + strResult
+		md = Gtk::Dialog.new(:title => "Package Contents", :parent => $mainWindow, :flags => :destroy_with_parent, :buttons_type => :close)
+
+		labelResult = Gtk::Label.new(strResult)
+#		labelResult = Gtk::Label.new("hello")
+				
+		scrolledPackageWindow = Gtk::ScrolledWindow.new()
+		scrolledPackageWindow.min_content_width = 400
+		scrolledPackageWindow.min_content_height = 600
+		scrolledPackageWindow.vscrollbar_policy = Gtk::PolicyType::ALWAYS
+		scrolledPackageWindow.add(labelResult)
+#		md.child.pack_start(scrolledPackageWindow)
+
+		md.set_size_request(400, 480)
+
+#		md.add(labelResult)
+		md.child.add(scrolledPackageWindow)
+
+
+#		md.child.add(labelResult)
+			md.show_all()
+
+		md.run
+		md.destroy
+
+		
+	else
+		puts "No games selected"
+	end
+
+end
+
 
 
 def scanUnityVersion() 

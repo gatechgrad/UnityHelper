@@ -17,6 +17,9 @@ public static class PackageRemover {
 
         myQueue = new Queue<string>();
 
+        strPackage = "com.unity.textmeshpro";
+        myQueue.Enqueue(strPackage);
+
         strPackage = "com.unity.ads";
         myQueue.Enqueue(strPackage);
 

@@ -45,10 +45,9 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 	end
 	
 	Dir.entries(strProjectsDir).select { | entry |
-		if (entry != '.' || entry != '..')
+		if (entry != '.' && entry != '..')
 			
 			strEntryPath = File.join(strProjectsDir, entry)
-#			unityScenes = Dir.glob(strEntryPath + "/**/*.unity")
 			if (File.directory?(strEntryPath) && File.directory?(strEntryPath + "/Assets"))
 				game = GameProject.new
 			
@@ -400,6 +399,89 @@ def compileLinux(games)
 	end
 end
 
+def findUnityScenes(games)
+	strResult = ""
+	games.each do | game |
+		dirProject = File.join($config.projects_dir, game.name)
+#		dirBuild = File.join($config.projects_dir, game.name, "build")
+		puts "Searching: #{dirProject} for Unity scenes"
+
+		if (File.directory?(dirProject)) 
+
+#			Dir.entries(dirProject).select { | strFileName |
+#				if (strFileName != '.' && strFileName != '..')
+					strResult += game.name + "\n"
+#					filePath = File.join(dirProject, strFileName)
+					
+					unityScenes = Dir.glob(dirProject + "/**/*.unity")
+					puts unityScenes
+					
+					if  (unityScenes.length == 0)
+						strResult += "  No Unity Scenes\n"
+					else 
+						unityScenes.each do | strScene | 
+							#strResult += unityScenes.join("\n")
+							puts "dirProject: #{dirProject}"
+							strResult += "  " + Pathname.new(strScene).relative_path_from(Pathname.new(dirProject)).to_s + "\n"
+						end
+					
+					end
+					
+					
+					
+					#strResult += "\n"
+
+				
+				
+			
+#				end
+#			}
+		end
+		
+	end
+	
+	return strResult
+
+end
+
+
+
+def displayPackageCache(games)
+	strResult = ""
+	games.each do | game |
+		dirProject = File.join($config.projects_dir, game.name)
+		puts "Searching: #{dirProject} for Package Cache"
+
+		strPath = File.join(dirProject, "Library/PackageCache")
+		if (File.directory?(dirProject) && File.directory?(strPath)) 
+			
+
+
+			strPackages = ""
+			Dir.entries(strPath).select { | strFileName |
+				if (strFileName != '.' && strFileName != '..')
+
+					strPackages += "  " + strFileName + "\n"
+					
+				end
+			}
+			
+			if (strPackages != "")
+				strResult += game.name + "\n"
+				strResult += strPackages
+			
+			end
+			
+		end
+		
+	end
+	
+	return strResult
+
+end
+
+
+
 
 def readConfigFile() 
 	$config = Config.new
@@ -469,6 +551,106 @@ def getUnityVersion()
 	f.close()
 
 end
+
+def removeDefaultPackages(games)
+	games.each do | game |
+		puts "Removing default packages: #{game.name}"
+		dirProject = File.join($config.projects_dir, game.name)
+
+
+		if (!File.directory?(File.join(dirProject, "Assets/Editor")) )
+			FileUtils.mkdir(File.join(dirProject, "Assets/Editor"))
+		end 
+
+		FileUtils.cp("PackageRemover.cs.template", File.join(dirProject, "Assets/Editor/PackageRemover.cs"))
+
+		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod PackageRemover.RemovePackages -quit'
+		puts strCommand
+		system(strCommand)
+	end
+
+
+end
+
+def updateProjectSettings(games)
+	games.each do | game |
+		puts "Updating project settings: #{game.name}"
+		dirProject = File.join($config.projects_dir, game.name)
+
+
+		if (!File.directory?(File.join(dirProject, "Assets/Editor")) )
+			FileUtils.mkdir(File.join(dirProject, "Assets/Editor"))
+		end 
+
+		FileUtils.cp("UpdateProjectSettings.cs.template", File.join(dirProject, "Assets/Editor/UpdateProjectSettings.cs"))
+
+		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod UpdateProjectSettings.UpdateSettings -quit'
+		puts strCommand
+		system(strCommand)
+	end
+
+
+end
+
+
+
+def updateAPI(games)
+	games.each do | game |
+		puts "Updating API: #{game.name}"
+		dirProject = File.join($config.projects_dir, game.name)
+
+#		FileUtils.cp("PackageRemover.cs.template", File.join(dirProject, "Assets/Editor/PackageRemover.cs"))
+
+		strCommand = '"' + $config.unity_exe + '" -accept-apiupdate -batchmode -quit -projectPath ' + dirProject
+		puts strCommand
+		system(strCommand)
+	end
+
+
+end
+
+def deleteObsoleteScripts(games)
+	games.each do | game |
+		dirProject = File.join($config.projects_dir, game.name)
+
+		if (File.directory?(dirProject)) 
+
+#			Dir.entries(dirProject).select { | strFileName |
+#				if (strFileName != '.' && strFileName != '..')
+
+#					if (strFileName =~ /build_all.bat/)
+					strFileName = "build_all.bat"
+					filePath = File.join(dirProject, strFileName)
+					
+					if (File.file?(filePath))
+						puts "Deleting: #{filePath}"
+						FileUtils.rm_rf(filePath)
+					end
+
+#					if (strFileName =~ /Assets/Editor/MyEditorScript.cs/)
+						
+
+#						filePath = File.join(dirProject, strFileName)
+					strFileName = "Assets/Editor/MyEditorScript.cs"
+					filePath = File.join(dirProject, strFileName)
+					if (File.file?(filePath))
+						puts "Deleting: #{filePath}"
+						FileUtils.rm_rf(filePath)
+					end
+				
+				
+			
+#				end
+#			}
+		end
+		
+	end
+
+end
+
+
+
+
 
 def makeUploadScript(game, strProjectIdentifier)
 	makeItchUploadScript(game.name, strProjectIdentifier, $config.projects_dir)
