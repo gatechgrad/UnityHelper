@@ -20,6 +20,7 @@ class GameProject
 		attr_accessor :playmaker_version
 		attr_accessor :hasUnityPackageManagerFolder
 		attr_accessor :hasTempFolder
+		attr_accessor :slug
 		
 		def hasCurrentVersion
 			
@@ -54,6 +55,7 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 				
 				game.name = entry
 				game.versions = Array.new
+				game.slug = "slug"
 				
 				Dir.entries(strEntryPath).select { | strFileName |
 					if (strFileName != '.' && strFileName != '..')
@@ -136,6 +138,8 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 				
 				end
 				
+				game.slug = getSlugFromConfigFile(game.name)
+				
 
 				gameProjectList << game
 				
@@ -143,7 +147,6 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 			
 		end
 	}
-	
 	
 	return gameProjectList
 end
@@ -246,10 +249,20 @@ def makeZipFiles(games)
 		dirBuild = File.join($config.projects_dir, game.name, "build")
 		puts "build directory #{dirBuild}"
 		
+		if (File.directory?(dirBuild))
+		
 		Dir.entries(dirBuild).select { | entry |
 			strDirToZip = File.join(dirBuild, entry)
 			if (entry != "." && entry != ".." && File.directory?(strDirToZip))
+				isWebBuild = false
 				strZipFile = File.join(dirBuild, entry + '.zip')
+				
+				##Use the slug for filename if it's WebGL
+				if (entry == game.name + "WebGL" && game.slug != "")
+					isWebBuild = true
+					strZipFile = File.join(dirBuild, game.slug + '.zip')
+				end
+				
 				puts "Zipping " + strDirToZip + " " + strZipFile
 				
 				if (File.exist?(strZipFile))
@@ -258,10 +271,25 @@ def makeZipFiles(games)
 				
 				zf = ZipFileGenerator.new(strDirToZip, strZipFile)
 				zf.write()
+				
+				if (isWebBuild)
+					uploads_dir = File.join($config.projects_dir, "uploads")
+					if (!File.directory?(uploads_dir) )
+						FileUtils.mkdir(uploads_dir)
+					end 
+
+					puts "copying #{strZipFile} to #{uploads_dir}"
+					FileUtils.mv(strZipFile, uploads_dir)
+				end
+
 
 			end
+			
 		
 		}
+		end
+	else
+		puts "Skipping, " + dirBuild + " does not exist"
 
 		
 	end
@@ -519,6 +547,34 @@ def readConfigFile()
 
 end
 
+
+def getSlugFromConfigFile(strProject) 
+	
+	strSlug = ""
+	
+	fileConfig = File.open("slug.config", "r")
+	fileConfig.each do | line |
+		if (line =~ /(.*)=(.*)/)
+		
+			if ($1 == strProject)
+				strSlug = $2
+			end
+			
+			
+		end
+		
+		
+	end
+	
+	fileConfig.close
+	
+	return strSlug
+
+end
+
+
+
+
 def getUnityVersion()
 	strEditorLogFile = ENV['USERPROFILE'] + '\AppData\Local\Unity\Editor\Editor.log'
 
@@ -656,6 +712,49 @@ def makeUploadScript(game, strProjectIdentifier)
 	makeItchUploadScript(game.name, strProjectIdentifier, $config.projects_dir)
 
 end
+
+def addSlug(game, strSlug)
+	fileSlugOriginal = File.open("slug.config", "r")
+	strSlugOriginal = fileSlugOriginal.readlines()
+	fileSlugOriginal.close()
+#	strSlugConfigOriginal = File.readlines("slug.config")
+
+	strSlugConfig = ""
+	slugUpdated = false
+
+	strSlugOriginal.each do | line |
+		if (line =~ /(.*)=(.*)/)
+			if ($1 == game.name)
+				if (!slugUpdated)
+					strSlugConfig += game.name + "=" + strSlug + "\n"
+					slugUpdated = true
+				end
+			else
+				strSlugConfig += line
+			end
+		end
+	
+	end
+	
+	if (!slugUpdated)
+		strSlugConfig += "\n" + game.name + "=" + strSlug
+	end
+
+	strArray = strSlugConfig.split("\n")
+	strArray.sort!
+	strSlugConfig = strArray.join("\n")
+	
+	puts "writing file: " + strSlugConfig
+
+	fileSlugConfig = File.open("slug.config", "w")
+	fileSlugConfig.write(strSlugConfig)
+	fileSlugConfig.close
+
+
+
+
+end
+
 
 def main()
 	readConfigFile

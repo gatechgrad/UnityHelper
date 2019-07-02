@@ -43,14 +43,20 @@ def makeGameProjectHeaders()
 	$tableGames.attach_defaults(labelName, 1, 2, 0, 1)
 	labelName.show
 
+	labelSlug = Gtk::Label.new("Slug")
+	labelSlug.override_background_color(:normal, headerBkgColor)
+	$tableGames.attach_defaults(labelSlug, 2, 3, 0, 1)
+	labelSlug.show
+
+
 	labelUnityVersion = Gtk::Label.new("Unity Version")
 	labelUnityVersion.override_background_color(:normal, headerBkgColor)
-	$tableGames.attach_defaults(labelUnityVersion, 2, 3, 0, 1)
+	$tableGames.attach_defaults(labelUnityVersion, 3, 4, 0, 1)
 	labelUnityVersion.show
 	
 	labelPlayMakerVersion = Gtk::Label.new("PlayMaker Version")
 	labelPlayMakerVersion.override_background_color(:normal, headerBkgColor)
-	$tableGames.attach_defaults(labelPlayMakerVersion, 3, 4, 0, 1)
+	$tableGames.attach_defaults(labelPlayMakerVersion, 4, 5, 0, 1)
 	labelPlayMakerVersion.show
 	
 	$tableGames.set_row_spacing(0, 8)
@@ -194,16 +200,29 @@ def makeGameProjectRow(iRow, gameProject)
 	gameCheckbox.expand = false
 	gameCheckbox.show
 
+## Project Name
 	labelName = Gtk::Label.new(gameProject.name)
 	labelName.expand = true
 	labelName.set_alignment(0, 0.5)
 	$labelArray << labelName
-#	labelName.override_background_color(:normal, Gdk::RGBA::new(  1.0, 1.0, 1.0, 1.0))
 	
 	$gameArray << gameProject
 	$tableGames.attach_defaults(labelName, 1, 2, iRow, iRow + 1)
 	labelName.show
+
+## Slug
+	labelSlug = Gtk::Label.new(gameProject.slug)
+	labelSlug.expand = true
+	labelSlug.set_alignment(0, 0.5)
+#	$labelArray << labelName
 	
+#	$gameArray << gameProject
+	$tableGames.attach_defaults(labelSlug, 2, 3, iRow, iRow + 1)
+	labelSlug.show
+
+
+
+## Project Version	
 	labelVersion = Gtk::Label.new("")
 	isCurrentMajorVersion = true
 	isCurrentMinorVersion = true
@@ -239,10 +258,11 @@ def makeGameProjectRow(iRow, gameProject)
 	elsif (!isCurrentMinorMinorVersion)
 		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 1.0, 1.0, 1.0))
 	end
-	$tableGames.attach_defaults(labelVersion, 2, 3, iRow, iRow + 1)
+	$tableGames.attach_defaults(labelVersion, 3, 4, iRow, iRow + 1)
 	labelVersion.show
 
 
+## PlayMaker version
 	labelPlaymakerVersion = Gtk::Label.new("")
 	if (!gameProject.playmaker_version.nil? )
 		labelPlaymakerVersion.label = gameProject.playmaker_version
@@ -253,7 +273,7 @@ def makeGameProjectRow(iRow, gameProject)
 
 		
 	end
-	$tableGames.attach_defaults(labelPlaymakerVersion, 3, 4, iRow, iRow + 1)
+	$tableGames.attach_defaults(labelPlaymakerVersion, 4, 5, iRow, iRow + 1)
 	labelPlaymakerVersion.show
 	
 	
@@ -335,6 +355,14 @@ def makeWindow()
 	button = Gtk::Button.new(:label => "Find Unity Scenes")
 	button.signal_connect "clicked" do |_widget|
 		findUnityScenesClicked()
+	end
+	scanBox.add(button)
+
+
+## Enter slug
+	button = Gtk::Button.new(:label => "Enter Slug")
+	button.signal_connect "clicked" do |_widget|
+		enterSlugClicked()
 	end
 	scanBox.add(button)
 
@@ -824,6 +852,53 @@ def findUnityScenesClicked()
 	end
 
 end
+
+def enterSlugClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		selectedArray.each do | game |
+		
+			strSlug = ""
+
+			md = Gtk::MessageDialog.new :parent => $mainWindow,
+				:flags => :destroy_with_parent, :type => :question,
+				:buttons_type => :ok, :message => "Enter slug for \n" + game.name
+			entry = Gtk::Entry.new
+			md.child.add(entry)
+			md.show_all()
+			md.run()
+
+			strSlug = entry.text
+			
+			md.destroy()
+			
+			if (strSlug != "")
+				addSlug(game, strSlug)
+			
+
+			end
+
+		end
+		
+		scanProjects()
+
+		
+		
+		
+	else
+		puts "No games selected"
+	end
+
+end
+
 
 
 def displayPackageCacheClicked() 
