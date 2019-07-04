@@ -251,46 +251,47 @@ def makeZipFiles(games)
 		
 		if (File.directory?(dirBuild))
 		
-		Dir.entries(dirBuild).select { | entry |
-			strDirToZip = File.join(dirBuild, entry)
-			if (entry != "." && entry != ".." && File.directory?(strDirToZip))
-				isWebBuild = false
-				strZipFile = File.join(dirBuild, entry + '.zip')
+			Dir.entries(dirBuild).select { | entry |
+				strDirToZip = File.join(dirBuild, entry)
+				if (entry != "." && entry != ".." && File.directory?(strDirToZip))
+					isWebBuild = false
+					strZipFile = File.join(dirBuild, entry + '.zip')
 				
-				##Use the slug for filename if it's WebGL
-				if (entry == game.name + "WebGL" && game.slug != "")
-					isWebBuild = true
-					strZipFile = File.join(dirBuild, game.slug + '.zip')
-				end
+					##Use the slug for filename if it's WebGL
+					if (entry == game.name + "WebGL" && game.slug != "")
+						isWebBuild = true
+						strZipFile = File.join(dirBuild, game.slug + '.zip')
+					end
 				
-				puts "Zipping " + strDirToZip + " " + strZipFile
+					puts "Zipping " + strDirToZip + " " + strZipFile
 				
-				if (File.exist?(strZipFile))
-						FileUtils.rm(strZipFile)
-				end
+					if (File.exist?(strZipFile))
+							FileUtils.rm(strZipFile)
+					end
 				
-				zf = ZipFileGenerator.new(strDirToZip, strZipFile)
-				zf.write()
+					zf = ZipFileGenerator.new(strDirToZip, strZipFile)
+					zf.write()
 				
-				if (isWebBuild)
-					uploads_dir = File.join($config.projects_dir, "uploads")
-					if (!File.directory?(uploads_dir) )
-						FileUtils.mkdir(uploads_dir)
-					end 
+					if (isWebBuild)
+						uploads_dir = File.join($config.projects_dir, "uploads")
+						if (!File.directory?(uploads_dir) )
+							FileUtils.mkdir(uploads_dir)
+						end 
 
-					puts "copying #{strZipFile} to #{uploads_dir}"
-					FileUtils.mv(strZipFile, uploads_dir)
+						puts "copying #{strZipFile} to #{uploads_dir}"
+						FileUtils.mv(strZipFile, uploads_dir)
+					end
+
+
 				end
-
-
-			end
 			
 		
-		}
-		end
-	else
-		puts "Skipping, " + dirBuild + " does not exist"
+			}
 
+		else
+			puts "Skipping, " + dirBuild + " does not exist"
+
+		end
 		
 	end
 
