@@ -11,7 +11,7 @@ public static class UpdateProjectSettings {
     [MenuItem("Build/Update Settings")]
     public static void UpdateSettings() {
         Debug.Log("Update Settings");
-        string strCompany = "Levi D. Smith";
+        string strCompany = "%NAME%";
 		
 		UnityEditor.PlayerSettings.companyName = strCompany;
         UnityEditor.PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Latest;

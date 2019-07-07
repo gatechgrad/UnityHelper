@@ -12,6 +12,7 @@ class Config
 	attr_accessor :playmaker_current_version
 	attr_accessor :unity_exe
 	attr_accessor :scan_projects_on_startup
+	attr_accessor :company_name
 end
 
 class GameProject
@@ -541,6 +542,11 @@ def readConfigFile()
 			end
 		end
 		
+		if (line =~ /COMPANY_NAME: (.*)/)
+			$config.company_name = $1
+		end
+
+		
 	end
 	
 	fileConfig.close
@@ -639,7 +645,25 @@ def updateProjectSettings(games)
 			FileUtils.mkdir(File.join(dirProject, "Assets/Editor"))
 		end 
 
-		FileUtils.cp("UpdateProjectSettings.cs.template", File.join(dirProject, "Assets/Editor/UpdateProjectSettings.cs"))
+		strFileContents = ""
+		fTempFile = File.open("UpdateProjectSettings.cs.template", "r")
+		fTempFile.each do | line |
+			if (line =~ /(.*)(%NAME%)(.*)/)
+				strFileContents << $1 << $config.company_name << $3 << "\n"
+			else 
+				strFileContents << line
+			end
+		end
+		fTempFile.close
+
+
+#		FileUtils.cp("UpdateProjectSettings.cs.template", File.join(dirProject, "Assets/Editor/UpdateProjectSettings.cs"))
+
+
+		File.open(File.join(dirProject, "Assets/Editor/UpdateProjectSettings.cs"), 'w') { | file |
+			file.write(strFileContents)
+		
+		}
 
 		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod UpdateProjectSettings.UpdateSettings -quit'
 		puts strCommand
@@ -711,6 +735,30 @@ end
 
 def makeUploadScript(game, strProjectIdentifier)
 	makeItchUploadScript(game.name, strProjectIdentifier, $config.projects_dir)
+
+end
+
+def callUploadScript(games)
+	dirOrig = Dir.pwd
+	games.each do | game |
+		dirProject = File.join($config.projects_dir, game.name)
+
+		if (File.directory?(dirProject)) 
+			strFile = File.join(dirProject, "butler_push_all.bat")
+			Dir.chdir dirProject
+			if (File.file?(strFile))
+				puts strFile
+				system(strFile)
+			end
+		
+		end
+
+
+	
+
+	end
+	
+	Dir.chdir dirOrig
 
 end
 

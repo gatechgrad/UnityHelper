@@ -10,4 +10,4 @@ call %BUTLER_EXE% push build\%PROJ_EXE%Linux gatechgrad/%PROJ_SERVER%:linux
 
 @echo 
 
-pause > nul
+REM pause > nul

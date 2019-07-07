@@ -449,27 +449,41 @@ def makeWindow()
 
 
 
+## Make upload box
+	uploadBox = Gtk::ButtonBox.new(:vertical)
+
+
 ##Copy scripts to project
 	button = Gtk::Button.new(:label => "Copy scripts")
 	button.signal_connect "clicked" do |_widget|
 		copyScriptsClicked()
 	end
-	buttonBox.add(button)
+	uploadBox.add(button)
 
-	
+
 ## Make Upload Script button	
 	button = Gtk::Button.new(:label => "Make Upload Script")
 	button.signal_connect "clicked" do |_widget|
 		makeUploadScriptAllSelected()
 	end
-	buttonBox.add(button)
+	uploadBox.add(button)
+
+	
+## Call Upload Script button	
+	button = Gtk::Button.new(:label => "Call Upload Script")
+	button.signal_connect "clicked" do |_widget|
+		callUploadScriptClicked()
+	end
+	uploadBox.add(button)
+	
+	buttonBox.add(uploadBox)
 
 ## Quit button	
-	button = Gtk::Button.new(:label => "Quit")
-	button.signal_connect "clicked" do |_widget|
-		Gtk.main_quit
-	end
-	buttonBox.add(button)
+#	button = Gtk::Button.new(:label => "Quit")
+#	button.signal_connect "clicked" do |_widget|
+#		Gtk.main_quit
+#	end
+#   buttonBox.add(button)
 
 
 	grid.attach(buttonBox, 0, iRow, 2, 1)
@@ -585,29 +599,33 @@ def makeUploadScriptAllSelected()
 			puts "Make upload script for " + game.name
 			strProjectIdentifier = ""
 
-			md = Gtk::MessageDialog.new :parent => $mainWindow,
+			if (game.slug != "")
+				strProjectIdentifier = game.slug
+
+			else 
+				md = Gtk::MessageDialog.new :parent => $mainWindow,
 				:flags => :destroy_with_parent, :type => :question,
 				:buttons_type => :ok, :message => "Enter Itch.io identifier for\n" + game.name
-#			action_area = md.get_content_area()
-			entry = Gtk::Entry.new
-#			md.vbox.add(entry)
-			md.child.add(entry)
-#			action_area.pack_start(entry)
-			md.show_all()
-			md.run()
+				entry = Gtk::Entry.new
+				md.child.add(entry)
+				md.show_all()
+				md.run()
 
-			strProjectIdentifier = entry.text
+				strProjectIdentifier = entry.text
+				md.destroy()
+
+			end
+
 			
-			md.destroy()
 			
 			if (strProjectIdentifier != "")
 				makeUploadScript(game, strProjectIdentifier)
 
-				md = Gtk::MessageDialog.new :parent => $mainWindow,
-				:flags => :destroy_with_parent, :type => :info,
-				:buttons_type => :close, :message => "Itch.io upload script created and saved to\n" + $config.projects_dir + "/" + game.name + "/" + "butler_push_all.bat"
-				md.run
-				md.destroy
+#				md = Gtk::MessageDialog.new :parent => $mainWindow,
+#				:flags => :destroy_with_parent, :type => :info,
+#				:buttons_type => :close, :message => "Itch.io upload script created and saved to\n" + $config.projects_dir + "/" + game.name + "/" + "butler_push_all.bat"
+#				md.run
+#				md.destroy
 			
 
 			end
@@ -813,6 +831,28 @@ def updateProjectSettingsClicked()
 		end
 		
 		updateProjectSettings(selectedArray)
+		
+		Sound.play('.\sounds\jobsdone.wav')
+
+	else
+		puts "No games selected"
+	end
+
+
+end
+
+def callUploadScriptClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		callUploadScript(selectedArray)
 		
 		Sound.play('.\sounds\jobsdone.wav')
 
