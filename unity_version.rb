@@ -6,6 +6,8 @@ require 'zip' #gem install rubyzip
 require_relative 'zip_example_recursive'
 require_relative 'make_itch_upload_script'
 
+IGNORE_FILE = "ignore.config"
+
 class Config
 	attr_accessor :projects_dir
 	attr_accessor :unity_current_version
@@ -46,8 +48,20 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 		return nil
 	end
 	
+	
+	ignoredProjects = Array.new
+	if (File.file?(IGNORE_FILE)) 
+		puts "reading #{IGNORE_FILE}"
+		fileIgnore = File.open(IGNORE_FILE, "r")
+		fileIgnore.each do | line |
+			puts "Ignoring #{line.chomp}"
+			ignoredProjects << line.chomp
+		end
+		fileIgnore.close
+	end
+	
 	Dir.entries(strProjectsDir).select { | entry |
-		if (entry != '.' && entry != '..')
+		if (entry != '.' && entry != '..' && !ignoredProjects.include?(entry))
 			
 			strEntryPath = File.join(strProjectsDir, entry)
 			if (File.directory?(strEntryPath) && File.directory?(strEntryPath + "/Assets"))
@@ -803,6 +817,21 @@ def addSlug(game, strSlug)
 
 
 end
+
+
+def ignoreProjects(games)
+	games.each do | game |
+	
+		fileIgnore = File.open(IGNORE_FILE, "a")
+		fileIgnore.puts game.name
+		fileIgnore.close
+		
+	
+
+	end
+
+end
+
 
 
 def main()

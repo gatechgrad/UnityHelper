@@ -367,6 +367,14 @@ def makeWindow()
 	scanBox.add(button)
 
 
+## Ignore project
+	button = Gtk::Button.new(:label => "Ignore")
+	button.signal_connect "clicked" do |_widget|
+		ignoreClicked()
+	end
+	scanBox.add(button)
+
+
 	buttonBox.add(scanBox)
 
 
@@ -983,6 +991,29 @@ def displayPackageCacheClicked()
 		md.destroy
 
 		
+	else
+		puts "No games selected"
+	end
+
+end
+
+
+def ignoreClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		ignoreProjects(selectedArray)
+
+		
+		scanProjects()
+
 	else
 		puts "No games selected"
 	end
