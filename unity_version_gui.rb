@@ -250,11 +250,11 @@ def makeGameProjectRow(iRow, gameProject)
 		
 	#		if (vnMajorMinor[0] != unityMajorMinor[0] || vnMajorMinor[1] != unityMajorMinor[1])
 			if (vnYear != $config.unity_selected_version.versionYear || vnMajor != $config.unity_selected_version.versionMajor)
-				puts "#{gameProject.name} compare year #{vnYear} != #{$config.unity_selected_version.versionYear}, major #{vnMajor} = #{$config.unity_selected_version.versionMajor} "
+#				puts "#{gameProject.name} compare year #{vnYear} != #{$config.unity_selected_version.versionYear}, major #{vnMajor} = #{$config.unity_selected_version.versionMajor} "
 				isCurrentMajorVersion = false
 	#		elsif (vnMajorMinor[2] != unityMajorMinor[2])
 			elsif (vnMinor != $config.unity_selected_version.versionMinor)
-				puts "#{gameProject.name} compare minor #{vnMinor} != #{$config.unity_selected_version.versionMinor} "
+#				puts "#{gameProject.name} compare minor #{vnMinor} != #{$config.unity_selected_version.versionMinor} "
 				isCurrentMinorVersion = false
 			elsif (vnPatch != $config.unity_selected_version.versionPatch || vnPatchNumber != $config.unity_selected_version.versionPatchNumber)
 				isCurrentPatchVersion = false
