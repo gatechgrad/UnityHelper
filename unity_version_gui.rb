@@ -226,7 +226,7 @@ def makeGameProjectRow(iRow, gameProject)
 	labelVersion = Gtk::Label.new("")
 	isCurrentMajorVersion = true
 	isCurrentMinorVersion = true
-	isCurrentMinorMinorVersion = true
+	isCurrentPatchVersion = true
 	
 	versionNumbers = Array.new
 	gameProject.versions.each do | version |
@@ -238,13 +238,28 @@ def makeGameProjectRow(iRow, gameProject)
 			labelVersion.label += ", "
 		end
 		
-		vnMajorMinor = vn.split('.')
-		unityMajorMinor = $config.unity_current_version.split('.')
+#		vnMajorMinor = vn.split('.')
+#		unityMajorMinor = $config.unity_current_version.split('.')
+		if (vn =~ /([0-9]+)\.([0-9]+)\.([0-9]+)([a-z])([0-9]+)/)
+			vnYear = $1
+			vnMajor = $2
+			vnMinor = $3
+			vnPatch = $4
+			vnPatchNumber = $5
+
 		
-		if (vnMajorMinor[0] != unityMajorMinor[0] || vnMajorMinor[1] != unityMajorMinor[1])
-			isCurrentMajorVersion = false
-		elsif (vnMajorMinor[2] != unityMajorMinor[2])
-			isCurrentMinorVersion = false
+	#		if (vnMajorMinor[0] != unityMajorMinor[0] || vnMajorMinor[1] != unityMajorMinor[1])
+			if (vnYear != $config.unity_selected_version.versionYear || vnMajor != $config.unity_selected_version.versionMajor)
+				puts "#{gameProject.name} compare year #{vnYear} != #{$config.unity_selected_version.versionYear}, major #{vnMajor} = #{$config.unity_selected_version.versionMajor} "
+				isCurrentMajorVersion = false
+	#		elsif (vnMajorMinor[2] != unityMajorMinor[2])
+			elsif (vnMinor != $config.unity_selected_version.versionMinor)
+				puts "#{gameProject.name} compare minor #{vnMinor} != #{$config.unity_selected_version.versionMinor} "
+				isCurrentMinorVersion = false
+			elsif (vnPatch != $config.unity_selected_version.versionPatch || vnPatchNumber != $config.unity_selected_version.versionPatchNumber)
+				isCurrentPatchVersion = false
+			end
+		
 		end
 		labelVersion.label += "#{vn}"
 	end
@@ -254,9 +269,9 @@ def makeGameProjectRow(iRow, gameProject)
 	if (!isCurrentMajorVersion)
 		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 0.5, 0.5, 1.0))
 	elsif (!isCurrentMinorVersion)
+		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 0.75, 0.5, 1.0))
+	elsif (!isCurrentPatchVersion)
 		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 1.0, 0.5, 1.0))
-	elsif (!isCurrentMinorMinorVersion)
-		labelVersion.override_background_color(:normal, Gdk::RGBA::new(  1.0, 1.0, 1.0, 1.0))
 	end
 	$tableGames.attach_defaults(labelVersion, 3, 4, iRow, iRow + 1)
 	labelVersion.show
@@ -311,16 +326,28 @@ def makeWindow()
 
 	iRow += 1
 
+	labelUnityFolder = Gtk::Label.new
+	labelUnityFolder.label = "Unity Folder"
+	grid.attach(labelUnityFolder, 0, iRow, 1, 1)
+
+	$textUnityFolder = Gtk::Entry.new
+	$textUnityFolder.editable = false
+	$textUnityFolder.text = $config.unity_folder
+	grid.attach($textUnityFolder, 1, iRow, 1, 1)
+	
+	iRow += 1
+
 	labelProjectDirectory = Gtk::Label.new
 	labelProjectDirectory.label = "Unity Current Version"
 	grid.attach(labelProjectDirectory, 0, iRow, 1, 1)
 
 	$textUnityCurrentVersion = Gtk::Entry.new
 	$textUnityCurrentVersion.editable = false
-	$textUnityCurrentVersion.text = $config.unity_current_version
+	$textUnityCurrentVersion.text = $config.unity_selected_version.ToString()
 	grid.attach($textUnityCurrentVersion, 1, iRow, 1, 1)
 	
 	iRow += 1
+
 
 	labelUnityExecutable = Gtk::Label.new
 	labelUnityExecutable.label = "Unity Executable"
@@ -328,7 +355,8 @@ def makeWindow()
 	
 	$textUnityExecutable = Gtk::Entry.new
 	$textUnityExecutable.editable = false
-	$textUnityExecutable.text = $config.unity_exe
+#	$textUnityExecutable.text = $config.unity_exe
+	$textUnityExecutable.text = $config.getUnityExe()
 	grid.attach($textUnityExecutable, 1, iRow, 1, 1)
 	
 	iRow += 1
@@ -481,6 +509,15 @@ def makeWindow()
 	button = Gtk::Button.new(:label => "Call Upload Script")
 	button.signal_connect "clicked" do |_widget|
 		callUploadScriptClicked()
+	end
+	uploadBox.add(button)
+
+
+
+## Online Docs
+	button = Gtk::Button.new(:label => "Online Docs")
+	button.signal_connect "clicked" do |_widget|
+		onlineDocsClicked()
 	end
 	uploadBox.add(button)
 	
@@ -1020,6 +1057,11 @@ def ignoreClicked()
 
 end
 
+def onlineDocsClicked() 
+			strCommand = 'explorer %s' % "https://levidsmith.com/wiki/Unity_Build_Tool"
+			system(strCommand)
+
+end
 
 
 def scanUnityVersion() 

@@ -10,11 +10,16 @@ IGNORE_FILE = "ignore.config"
 
 class Config
 	attr_accessor :projects_dir
-	attr_accessor :unity_current_version
+	attr_accessor :unity_folder
+	attr_accessor :unity_selected_version
 	attr_accessor :playmaker_current_version
-	attr_accessor :unity_exe
+#	attr_accessor :unity_exe
 	attr_accessor :scan_projects_on_startup
 	attr_accessor :company_name
+	
+	def getUnityExe()
+		return File.join(unity_folder, unity_selected_version.ToString(), "Editor/Unity.exe")
+	end
 end
 
 class GameProject
@@ -32,6 +37,21 @@ class GameProject
 end
 
 class UnityVersion
+#	attr_accessor :versionNumber
+#	attr_accessor :fileName
+	
+	attr_accessor :versionYear
+	attr_accessor :versionMajor
+	attr_accessor :versionMinor
+	attr_accessor :versionPatch
+	attr_accessor :versionPatchNumber
+	
+	def ToString()
+		return "#{versionYear}.#{versionMajor}.#{versionMinor}#{versionPatch}#{versionPatchNumber}"
+	end
+end
+
+class ProjectVersion
 	attr_accessor :versionNumber
 	attr_accessor :fileName
 end
@@ -84,7 +104,7 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 								if (line =~ /<UnityVersion>(.*)<\/UnityVersion>/)
 									strResult << "  Unity Version: " + $1 + " (#{strFileName})" + "\n"
 
-									version = UnityVersion.new
+									version = ProjectVersion.new
 									version.versionNumber = $1
 									version.fileName = strFileName
 									game.versions << version
@@ -109,7 +129,7 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 							strVersion = $1
 							strResult << "  Unity Version: " + $1 + " (#{strProjectVersionFile})"
 							
-							version = UnityVersion.new
+							version = ProjectVersion.new
 							version.versionNumber = $1
 							version.fileName = strProjectVersionFile
 							game.versions << version
@@ -220,7 +240,8 @@ def compileWebGL(games)
 
 		
 		
-		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod EditorScript.PerformBuild -quit'
+#		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod EditorScript.PerformBuild -quit'
+		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -executeMethod EditorScript.PerformBuild -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -393,7 +414,8 @@ def compileWindows(games)
 		
 		end
 		
-		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
+#		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
+		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -414,7 +436,8 @@ def compileMac(games)
 		
 		end
 		
-		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildOSXUniversalPlayer ' + File.join(dirBuild, game.name + ".app") + ' -quit'
+#		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildOSXUniversalPlayer ' + File.join(dirBuild, game.name + ".app") + ' -quit'
+		strCommand = '"' + $config.getUnityExe + '" -logFile -projectPath ' + dirProject + ' -buildOSXUniversalPlayer ' + File.join(dirBuild, game.name + ".app") + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -436,7 +459,8 @@ def compileLinux(games)
 		
 		end
 		
-		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + File.join(dirBuild, game.name) + ' -quit'
+#		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + File.join(dirBuild, game.name) + ' -quit'
+		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + File.join(dirBuild, game.name) + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -532,17 +556,59 @@ def readConfigFile()
 	
 	fileConfig = File.open("unity_version.config", "r")
 	fileConfig.each do | line |
-		if (line =~ /UNITY_EXE: (.*)/)
-			$config.unity_exe = $1
+#		if (line =~ /UNITY_EXE: (.*)/)
+#			$config.unity_exe = $1
+#		end
+
+		if (line =~ /UNITY_FOLDER: (.*)/)
+			$config.unity_folder = $1
+			
+			if (File.directory?($config.unity_folder))
+				Dir.entries($config.unity_folder).select { | entry |
+					if (entry =~ /([0-9]+)\.([0-9]+)\.([0-9]+)([a-z])([0-9]+)/)
+						version = UnityVersion.new
+						version.versionYear = $1
+						version.versionMajor = $2
+						version.versionMinor = $3
+						version.versionPatch = $4
+						version.versionPatchNumber = $5
+
+#						version_year = $1
+#						version_major = $2
+#						version_minor = $3
+#						version_type = $4
+#						version_type_number = $5
+						
+#						puts "Year: #{version_year} Major: #{version_major} Minor: #{version_minor} Type: #{version_type} Type Number: #{version_type_number}"
+						puts "Year: #{version.versionYear} Major: #{version.versionMajor} Minor: #{version.versionMinor} Type: #{version.versionPatch} Type Number: #{version.versionPatchNumber}"
+						
+						if ($config.unity_selected_version.nil?)
+							$config.unity_selected_version = version
+						elsif ($config.unity_selected_version.versionYear.to_i < version.versionYear.to_i)
+							$config.unity_selected_version = version
+						elsif ($config.unity_selected_version.versionMajor.to_i < version.versionMajor.to_i)
+							$config.unity_selected_version = version
+						elsif ($config.unity_selected_version.versionMinor.to_i < version.versionMinor.to_i)
+							puts "#{$config.unity_selected_version.versionMinor} < #{version.versionMinor}"
+							$config.unity_selected_version = version
+						end
+					end
+				}
+
+
+				
+			end
+			
 		end
+
 		
 		if (line =~ /PROJECTS_DIR: (.*)/)
 			$config.projects_dir = $1
 		end
 		
-		if (line =~ /UNITY_CURRENT_VERSION: (.*)/)
-			$config.unity_current_version = $1
-		end
+#		if (line =~ /UNITY_CURRENT_VERSION: (.*)/)
+#			$config.unity_current_version = $1
+#		end
 		
 		if (line =~ /PLAYMAKER_CURRENT_VERSION: (.*)/)
 			$config.playmaker_current_version = $1
@@ -641,7 +707,8 @@ def removeDefaultPackages(games)
 
 		FileUtils.cp("PackageRemover.cs.template", File.join(dirProject, "Assets/Editor/PackageRemover.cs"))
 
-		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod PackageRemover.RemovePackages -quit'
+#		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod PackageRemover.RemovePackages -quit'
+		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -executeMethod PackageRemover.RemovePackages -quit'
 		puts strCommand
 		system(strCommand)
 	end
@@ -679,7 +746,8 @@ def updateProjectSettings(games)
 		
 		}
 
-		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod UpdateProjectSettings.UpdateSettings -quit'
+#		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod UpdateProjectSettings.UpdateSettings -quit'
+		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -executeMethod UpdateProjectSettings.UpdateSettings -quit'
 		puts strCommand
 		system(strCommand)
 	end
@@ -696,7 +764,8 @@ def updateAPI(games)
 
 #		FileUtils.cp("PackageRemover.cs.template", File.join(dirProject, "Assets/Editor/PackageRemover.cs"))
 
-		strCommand = '"' + $config.unity_exe + '" -accept-apiupdate -batchmode -quit -projectPath ' + dirProject
+#		strCommand = '"' + $config.unity_exe + '" -accept-apiupdate -batchmode -quit -projectPath ' + dirProject
+		strCommand = '"' + $config.getUnityExe() + '" -accept-apiupdate -batchmode -quit -projectPath ' + dirProject
 		puts strCommand
 		system(strCommand)
 	end
