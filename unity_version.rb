@@ -460,7 +460,7 @@ def compileLinux(games)
 		end
 		
 #		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + File.join(dirBuild, game.name) + ' -quit'
-		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + File.join(dirBuild, game.name) + ' -quit'
+		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -buildLinux64Player ' + File.join(dirBuild, game.name) + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
