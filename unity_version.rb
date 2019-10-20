@@ -16,6 +16,8 @@ class Config
 #	attr_accessor :unity_exe
 	attr_accessor :scan_projects_on_startup
 	attr_accessor :company_name
+	attr_accessor :butler_exe
+	attr_accessor :itch_username
 	
 	def getUnityExe()
 		return File.join(unity_folder, unity_selected_version.ToString(), "Editor/Unity.exe")
@@ -45,6 +47,8 @@ class UnityVersion
 	attr_accessor :versionMinor
 	attr_accessor :versionPatch
 	attr_accessor :versionPatchNumber
+	
+	
 	
 	def ToString()
 		return "#{versionYear}.#{versionMajor}.#{versionMinor}#{versionPatch}#{versionPatchNumber}"
@@ -554,7 +558,19 @@ end
 def readConfigFile() 
 	$config = Config.new
 	
+	if !File.file?("unity_version.config")
+		puts "Could not find unity_verison.config file"
+		exit
+	end
+	
 	fileConfig = File.open("unity_version.config", "r")
+	
+	
+	puts "Reading config file"
+	if (fileConfig.nil?)
+		puts "Could not open unity_verison.config file"
+	end
+	
 	fileConfig.each do | line |
 #		if (line =~ /UNITY_EXE: (.*)/)
 #			$config.unity_exe = $1
@@ -626,10 +642,34 @@ def readConfigFile()
 			$config.company_name = $1
 		end
 
+		if (line =~ /BUTLER_EXE: (.*)/)
+			$config.butler_exe = $1
+		end
+
+		if (line =~ /ITCH_USERNAME: (.*)/)
+			$config.itch_username = $1
+		end
+
+
 		
 	end
 	
 	fileConfig.close
+	
+	if (!File.directory?($config.unity_folder))
+		puts "Missing UNITY_FOLDER directory! #{$config.unity_folder}"
+		exit
+	end
+
+	if (!File.directory?($config.projects_dir))
+		puts "Missing PROJECTS_DIR directory! #{$config.projects_dir}"
+		exit
+	end
+
+	
+	if ($config.unity_selected_version.nil?)
+		puts "Missing selected Unity version"
+	end
 
 
 end
@@ -826,15 +866,26 @@ def callUploadScript(games)
 	games.each do | game |
 		dirProject = File.join($config.projects_dir, game.name)
 
-		if (File.directory?(dirProject)) 
-			strFile = File.join(dirProject, "butler_push_all.bat")
-			Dir.chdir dirProject
-			if (File.file?(strFile))
-				puts strFile
-				system(strFile)
-			end
-		
-		end
+
+#		if (File.directory?(dirProject)) 
+#			strFile = File.join(dirProject, "butler_push_all.bat")
+#			Dir.chdir dirProject
+#			if (File.file?(strFile))
+#				puts strFile
+#				system(strFile)
+#			end
+#		end
+		strCommand = $config.butler_exe + ' push ' + File.join(dirProject, 'build', game.name + 'Windows') + ' ' + $config.itch_username + '/' + game.slug + ':win'
+		puts "calling butler upload for Windows: #{strCommand}"
+		system(strCommand)
+
+		strCommand = $config.butler_exe + ' push ' + File.join(dirProject, 'build', game.name + 'Mac') + ' ' + $config.itch_username + '/' + game.slug + ':osx'		
+		puts "calling butler upload for Mac: #{strCommand}"
+		system(strCommand)
+
+		strCommand = $config.butler_exe + ' push ' + File.join(dirProject, 'build', game.name + 'Linux') + ' ' + $config.itch_username + '/' + game.slug + ':linux'		
+		puts "calling butler upload for Linux: #{strCommand}"
+		system(strCommand)
 
 
 	
