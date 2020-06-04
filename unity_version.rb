@@ -6,6 +6,7 @@ require 'zip' #gem install rubyzip
 require_relative 'zip_example_recursive'
 require_relative 'make_itch_upload_script'
 
+CONFIG_FILE = "unity_version.config"
 IGNORE_FILE = "ignore.config"
 
 class Config
@@ -563,7 +564,8 @@ def readConfigFile()
 		exit
 	end
 	
-	fileConfig = File.open("unity_version.config", "r")
+#	fileConfig = File.open("unity_version.config", "r")
+	fileConfig = File.open(CONFIG_FILE, "r")
 	
 	
 	puts "Reading config file"

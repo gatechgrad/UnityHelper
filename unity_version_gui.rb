@@ -402,6 +402,14 @@ def makeWindow()
 	end
 	scanBox.add(button)
 
+## Edit config
+	button = Gtk::Button.new(:label => "Edit Config")
+	button.signal_connect "clicked" do |_widget|
+		editConfigClicked()
+	end
+	scanBox.add(button)
+
+
 
 	buttonBox.add(scanBox)
 
@@ -1159,6 +1167,14 @@ def ignoreClicked()
 	else
 		puts "No games selected"
 	end
+
+end
+
+
+def editConfigClicked()
+
+	strCommand = "notepad " + CONFIG_FILE
+	system(strCommand)
 
 end
 
