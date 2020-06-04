@@ -1,4 +1,4 @@
-### 2018, 2019 Levi D. Smith
+### 2018, 2019, 2020 Levi D. Smith
 ### levidsmith.com
 
 require 'gtk3'
@@ -592,34 +592,38 @@ def compileClicked()
 			i += 1
 		end
 		
-		if ($platformCheckbox["Windows"].active?)
-			compileWindows(selectedArray)
-		end
+		if (selectedArray.length > 0)
+			if ($platformCheckbox["Windows"].active?)
+				compileWindows(selectedArray)
+			end
 		
-		if ($platformCheckbox["Mac"].active?)
-			compileMac(selectedArray)
-		end
+			if ($platformCheckbox["Mac"].active?)
+				compileMac(selectedArray)
+			end
 
-		if ($platformCheckbox["Linux"].active?)
-			compileLinux(selectedArray)
-		end
+			if ($platformCheckbox["Linux"].active?)
+				compileLinux(selectedArray)
+			end
 		
-		if ($platformCheckbox["WebGL"].active?)
-			compileWebGL(selectedArray)
-		end
+			if ($platformCheckbox["WebGL"].active?)
+				compileWebGL(selectedArray)
+			end
 		
-		if ($platformCheckbox["MakeZip"].active?)
-			makeZipFiles(selectedArray)
-		end
+			if ($platformCheckbox["MakeZip"].active?)
+				makeZipFiles(selectedArray)
+			end
 		
-		Sound.play('.\sounds\jobsdone.wav')
+			Sound.play('.\sounds\jobsdone.wav')
+
+			displayInfoDialog("Tasks completed")
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
 
 		
-		md = Gtk::MessageDialog.new :parent => $mainWindow,
-				:flags => :destroy_with_parent, :type => :info,
-				:buttons_type => :close, :message => "Tasks completed"
-		md.run
-		md.destroy
+
 		
 		
 	else
@@ -638,46 +642,49 @@ def makeUploadScriptAllSelected()
 			end	
 			i += 1
 		end
+
+		if (selectedArray.length > 0)
+			selectedArray.each do | game |
 		
-		selectedArray.each do | game |
-		
-			puts "Make upload script for " + game.name
-			strProjectIdentifier = ""
+				puts "Make upload script for " + game.name
+				strProjectIdentifier = ""
 
-			if (game.slug != "")
-				strProjectIdentifier = game.slug
+				if (game.slug != "")
+					strProjectIdentifier = game.slug
 
-			else 
-				md = Gtk::MessageDialog.new :parent => $mainWindow,
-				:flags => :destroy_with_parent, :type => :question,
-				:buttons_type => :ok, :message => "Enter Itch.io identifier for\n" + game.name
-				entry = Gtk::Entry.new
-				md.child.add(entry)
-				md.show_all()
-				md.run()
+				else 
+					md = Gtk::MessageDialog.new :parent => $mainWindow,
+					:flags => :destroy_with_parent, :type => :question,
+					:buttons_type => :ok, :message => "Enter Itch.io identifier for\n" + game.name
+					entry = Gtk::Entry.new
+					md.child.add(entry)
+					md.show_all()
+					md.run()
 
-				strProjectIdentifier = entry.text
-				md.destroy()
+					strProjectIdentifier = entry.text
+					md.destroy()
+
+				end
+
+			
+			
+				if (strProjectIdentifier != "")
+					makeUploadScript(game, strProjectIdentifier)
+
+			
+
+				end
 
 			end
-
-			
-			
-			if (strProjectIdentifier != "")
-				makeUploadScript(game, strProjectIdentifier)
-
-#				md = Gtk::MessageDialog.new :parent => $mainWindow,
-#				:flags => :destroy_with_parent, :type => :info,
-#				:buttons_type => :close, :message => "Itch.io upload script created and saved to\n" + $config.projects_dir + "/" + game.name + "/" + "butler_push_all.bat"
-#				md.run
-#				md.destroy
-			
-
-			end
-
+		
+			Sound.play('.\sounds\jobsdone.wav')
+		
+		else
+			displayInfoDialog("No projects selected")
+		
 		end
+
 		
-		Sound.play('.\sounds\jobsdone.wav')
 
 		
 		
@@ -715,7 +722,14 @@ def clearBuildFolderClicked()
 			i += 1
 		end
 		
-		clearBuildFolder(selectedArray)
+		if (selectedArray.length > 0)
+			clearBuildFolder(selectedArray)
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
 	else
 		puts "No games selected"
 	end
@@ -732,9 +746,16 @@ def clearVSFilesClicked()
 			i += 1
 		end
 		
-		deleteVisualStudioProjectFiles(selectedArray)
+		if (selectedArray.length > 0)
+			deleteVisualStudioProjectFiles(selectedArray)
 		
-		Sound.play('.\sounds\jobsdone.wav')
+			Sound.play('.\sounds\jobsdone.wav')
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
 
 		
 	else
@@ -754,25 +775,35 @@ def openBuildFolderClicked()
 			i += 1
 		end
 		
-		selectedArray.each do | game |
-			dirProject = File.join($config.projects_dir, game.name)
-			strPath = File.join(dirProject, "build").gsub(File::SEPARATOR, File::ALT_SEPARATOR)
-			puts "Opening folder #{strPath}"
+		if (selectedArray.length > 0)
+			selectedArray.each do | game |
+				dirProject = File.join($config.projects_dir, game.name)
+				strPath = File.join(dirProject, "build").gsub(File::SEPARATOR, File::ALT_SEPARATOR)
+				puts "Opening folder #{strPath}"
 			##  Only Windows Explorer for now
 
-			if (!Dir.exist?(strPath))
-				FileUtils.mkdir_p(strPath)
+				if (!Dir.exist?(strPath))
+					FileUtils.mkdir_p(strPath)
+				end
+
+
+				strCommand = 'explorer %s' % strPath
+				system('explorer %s' % strPath)
+		
 			end
-
-
-			strCommand = 'explorer %s' % strPath
-			system('explorer %s' % strPath)
+		
+		else
+			displayInfoDialog("No projects selected")
 		
 		end
+		
+		
 
 		
 	else
 		puts "No games selected"
+
+
 	end
 
 
@@ -790,9 +821,16 @@ def copyScriptsClicked()
 			i += 1
 		end
 		
-		copyAutoSaveScript(selectedArray)
+		if (selectedArray.length > 0)
+			copyAutoSaveScript(selectedArray)
 
-		Sound.play('.\sounds\jobsdone.wav')
+			Sound.play('.\sounds\jobsdone.wav')
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
 		
 		
 	else
@@ -813,9 +851,16 @@ def removeDefaultPackagesClicked()
 			i += 1
 		end
 		
-		removeDefaultPackages(selectedArray)
+		if (selectedArray.length > 0)
+			removeDefaultPackages(selectedArray)
 
-		Sound.play('.\sounds\jobsdone.wav')
+			Sound.play('.\sounds\jobsdone.wav')
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
 
 	else
 		puts "No games selected"
@@ -835,9 +880,16 @@ def updateAPIClicked()
 			i += 1
 		end
 		
-		updateAPI(selectedArray)
+		if (selectedArray.length > 0)
+			updateAPI(selectedArray)
 		
-		Sound.play('.\sounds\jobsdone.wav')
+			Sound.play('.\sounds\jobsdone.wav')
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 		
+		
 
 	else
 		puts "No games selected"
@@ -858,9 +910,16 @@ def deleteObsoleteScriptsClicked()
 			i += 1
 		end
 		
-		deleteObsoleteScripts(selectedArray)
+		if (selectedArray.length > 0)
+			deleteObsoleteScripts(selectedArray)
 		
-		Sound.play('.\sounds\jobsdone.wav')
+			Sound.play('.\sounds\jobsdone.wav')
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
 
 	else
 		puts "No games selected"
@@ -881,9 +940,16 @@ def updateProjectSettingsClicked()
 			i += 1
 		end
 		
-		updateProjectSettings(selectedArray)
+		if (selectedArray.length > 0)
+			updateProjectSettings(selectedArray)
 		
-		Sound.play('.\sounds\jobsdone.wav')
+			Sound.play('.\sounds\jobsdone.wav')
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
 
 	else
 		puts "No games selected"
@@ -903,9 +969,17 @@ def callUploadScriptClicked()
 			i += 1
 		end
 		
-		callUploadScript(selectedArray)
+		if (selectedArray.length > 0)
+			callUploadScript(selectedArray)
 		
-		Sound.play('.\sounds\jobsdone.wav')
+			Sound.play('.\sounds\jobsdone.wav')
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+
+		
 
 	else
 		puts "No games selected"
@@ -928,14 +1002,24 @@ def findUnityScenesClicked()
 			i += 1
 		end
 		
-		strResult = findUnityScenes(selectedArray)
+		if (selectedArray.length > 0)
+			strResult = findUnityScenes(selectedArray)
+
+			displayInfoDialog("Unity scenes\n" + strResult)
 		
 		
-				md = Gtk::MessageDialog.new :parent => $mainWindow,
-				:flags => :destroy_with_parent, :type => :info,
-				:buttons_type => :close, :message => "Unity scenes\n" + strResult
-		md.run
-		md.destroy
+			#md = Gtk::MessageDialog.new :parent => $mainWindow,
+#				:flags => :destroy_with_parent, :type => :info,
+#				:buttons_type => :close, :message => "Unity scenes\n" + strResult
+			#md.run
+			#md.destroy
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+
+		
 
 		
 	else
@@ -955,31 +1039,40 @@ def enterSlugClicked()
 			i += 1
 		end
 		
-		selectedArray.each do | game |
+		if (selectedArray.length > 0)
+			selectedArray.each do | game |
 		
-			strSlug = ""
+				strSlug = ""
 
-			md = Gtk::MessageDialog.new :parent => $mainWindow,
-				:flags => :destroy_with_parent, :type => :question,
-				:buttons_type => :ok, :message => "Enter slug for \n" + game.name
-			entry = Gtk::Entry.new
-			md.child.add(entry)
-			md.show_all()
-			md.run()
+				md = Gtk::MessageDialog.new :parent => $mainWindow,
+					:flags => :destroy_with_parent, :type => :question,
+					:buttons_type => :ok, :message => "Enter slug for \n" + game.name
+				entry = Gtk::Entry.new
+				md.child.add(entry)
+				md.show_all()
+				md.run()
 
-			strSlug = entry.text
+				strSlug = entry.text
 			
-			md.destroy()
+				md.destroy()
 			
-			if (strSlug != "")
-				addSlug(game, strSlug)
+				if (strSlug != "")
+					addSlug(game, strSlug)
 			
+
+				end
 
 			end
-
-		end
 		
-		scanProjects()
+			scanProjects()
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+
+		
+		
 
 		
 		
@@ -1003,35 +1096,35 @@ def displayPackageCacheClicked()
 			i += 1
 		end
 		
-		strResult = displayPackageCache(selectedArray)
+		if (selectedArray.length > 0)
+			strResult = displayPackageCache(selectedArray)
 		
-		
-#				md = Gtk::MessageDialog.new :parent => $mainWindow,
-#				:flags => :destroy_with_parent, :type => :info,
-#				:buttons_type => :close, :message => "PackageCache\n" + strResult
-		md = Gtk::Dialog.new(:title => "Package Contents", :parent => $mainWindow, :flags => :destroy_with_parent, :buttons_type => :close)
+			md = Gtk::Dialog.new(:title => "Package Contents", :parent => $mainWindow, :flags => :destroy_with_parent, :buttons_type => :close)
 
-		labelResult = Gtk::Label.new(strResult)
-#		labelResult = Gtk::Label.new("hello")
+			labelResult = Gtk::Label.new(strResult)
 				
-		scrolledPackageWindow = Gtk::ScrolledWindow.new()
-		scrolledPackageWindow.min_content_width = 400
-		scrolledPackageWindow.min_content_height = 600
-		scrolledPackageWindow.vscrollbar_policy = Gtk::PolicyType::ALWAYS
-		scrolledPackageWindow.add(labelResult)
-#		md.child.pack_start(scrolledPackageWindow)
+			scrolledPackageWindow = Gtk::ScrolledWindow.new()
+			scrolledPackageWindow.min_content_width = 400
+			scrolledPackageWindow.min_content_height = 600
+			scrolledPackageWindow.vscrollbar_policy = Gtk::PolicyType::ALWAYS
+			scrolledPackageWindow.add(labelResult)
 
-		md.set_size_request(400, 480)
+			md.set_size_request(400, 480)
 
-#		md.add(labelResult)
-		md.child.add(scrolledPackageWindow)
+			md.child.add(scrolledPackageWindow)
 
 
-#		md.child.add(labelResult)
 			md.show_all()
 
-		md.run
-		md.destroy
+			md.run
+			md.destroy
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+
+		
 
 		
 	else
@@ -1052,10 +1145,16 @@ def ignoreClicked()
 			i += 1
 		end
 		
-		ignoreProjects(selectedArray)
-
+		if (selectedArray.length > 0)
+			ignoreProjects(selectedArray)
+			scanProjects()
 		
-		scanProjects()
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
+		
 
 	else
 		puts "No games selected"
@@ -1074,6 +1173,18 @@ def scanUnityVersion()
 			getUnityVersion()
 			readConfigFile()
 			$textUnityCurrentVersion.text = $config.unity_current_version
+
+end
+
+
+def displayInfoDialog(strMessage)
+
+				md = Gtk::MessageDialog.new :parent => $mainWindow,
+				:flags => :destroy_with_parent, :type => :question,
+				:buttons_type => :ok, :message => strMessage
+				md.run()
+				md.destroy()
+
 
 end
 
