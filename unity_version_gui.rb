@@ -759,6 +759,12 @@ def openBuildFolderClicked()
 			strPath = File.join(dirProject, "build").gsub(File::SEPARATOR, File::ALT_SEPARATOR)
 			puts "Opening folder #{strPath}"
 			##  Only Windows Explorer for now
+
+			if (!Dir.exist?(strPath))
+				FileUtils.mkdir_p(strPath)
+			end
+
+
 			strCommand = 'explorer %s' % strPath
 			system('explorer %s' % strPath)
 		
