@@ -6,7 +6,7 @@ require 'zip' #gem install rubyzip
 require_relative 'zip_example_recursive'
 require_relative 'make_itch_upload_script'
 
-CONFIG_FILE = "unity_version.config"
+CONFIG_FILE = "unityhelper.config"
 IGNORE_FILE = "ignore.config"
 
 class Config
@@ -165,7 +165,8 @@ def displayProjects(strProjectsDir, strCurrentVersion)
 				if (File.file?(File.join(strEntryPath, strWelcomeWindowFileName)))
 					f = File.open(File.join(strEntryPath, strWelcomeWindowFileName), "r")
 					f.each do | line |
-						if (line =~ /InstallCurrentVersion = "(.*)";/)
+#						if (line =~ /InstallCurrentVersion = "(.*)";/)
+						if (line =~ /InstallAssemblyVersion = "(.*)";/)
 							strVersion = $1
 							
 							game.playmaker_version = $1
@@ -559,12 +560,11 @@ end
 def readConfigFile() 
 	$config = Config.new
 	
-	if !File.file?("unity_version.config")
+	if !File.file?(CONFIG_FILE)
 		puts "Could not find unity_verison.config file"
 		exit
 	end
 	
-#	fileConfig = File.open("unity_version.config", "r")
 	fileConfig = File.open(CONFIG_FILE, "r")
 	
 	
@@ -574,9 +574,6 @@ def readConfigFile()
 	end
 	
 	fileConfig.each do | line |
-#		if (line =~ /UNITY_EXE: (.*)/)
-#			$config.unity_exe = $1
-#		end
 
 		if (line =~ /UNITY_FOLDER: (.*)/)
 			$config.unity_folder = $1
@@ -591,13 +588,6 @@ def readConfigFile()
 						version.versionPatch = $4
 						version.versionPatchNumber = $5
 
-#						version_year = $1
-#						version_major = $2
-#						version_minor = $3
-#						version_type = $4
-#						version_type_number = $5
-						
-#						puts "Year: #{version_year} Major: #{version_major} Minor: #{version_minor} Type: #{version_type} Type Number: #{version_type_number}"
 						puts "Year: #{version.versionYear} Major: #{version.versionMajor} Minor: #{version.versionMinor} Type: #{version.versionPatch} Type Number: #{version.versionPatchNumber}"
 						
 						if ($config.unity_selected_version.nil?)
@@ -624,9 +614,6 @@ def readConfigFile()
 			$config.projects_dir = $1
 		end
 		
-#		if (line =~ /UNITY_CURRENT_VERSION: (.*)/)
-#			$config.unity_current_version = $1
-#		end
 		
 		if (line =~ /PLAYMAKER_CURRENT_VERSION: (.*)/)
 			$config.playmaker_current_version = $1
@@ -721,7 +708,7 @@ def getUnityVersion()
 	f.close()
 	
 	strConfig = ""
-	f = File.open("unity_version.config", "r")
+	f = File.open(CONFIG_FILE, "r")
 	f.each do | line |
 		if (line =~ /UNITY_CURRENT_VERSION/)
 			strConfig << "UNITY_CURRENT_VERSION: " + strVersion + "\n"
@@ -731,7 +718,7 @@ def getUnityVersion()
 	end
 	f.close()
 	
-	f = File.open("unity_version.config", "w")
+	f = File.open(CONFIG_FILE, "w")
 	f.puts strConfig
 	f.close()
 
@@ -951,6 +938,30 @@ def ignoreProjects(games)
 	
 
 	end
+
+end
+
+def fixScriptTemplate()
+
+	puts "current unity version: " + $config.unity_selected_version.ToString()
+#	puts "current unity version: " + $config.unity_current_version
+
+	strTemplateFile = $config.unity_folder + '/' + $config.unity_selected_version.ToString() + '/Editor/Data/Resources/ScriptTemplates/81-C# Script-NewBehaviourScript.cs.txt'
+	f = File.open("script_template.txt")
+	strTemplate = f.read()
+	f.close()
+	
+	strTemplate.gsub!("<year>", Time.now.strftime("%Y"))
+	strTemplate.gsub!("<author>", $config.company_name)
+	
+	puts "Updating file: #{strTemplateFile}"
+	puts "New contents:\n#{strTemplate}"
+
+	f = File.open(strTemplateFile, "w")
+	f.write(strTemplate)
+	f.close()
+
+
 
 end
 

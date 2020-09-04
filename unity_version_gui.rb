@@ -363,7 +363,7 @@ def makeWindow()
 
 
 	puts "Adding new table row"
-	window.set_title("Unity Build Tool - 2019 Levi D. Smith")
+	window.set_title("Unity Build Tool - 2020 Levi D. Smith")
 
 
 
@@ -479,16 +479,24 @@ def makeWindow()
 	end
 	buildBox.add(button)
 
+##Fix script template
+	button = Gtk::Button.new(:label => "Fix script template")
+	button.signal_connect "clicked" do |_widget|
+		fixScriptTemplate()
+	end
+	buildBox.add(button)
+
+
 	
 	buttonBox.add(buildBox)
 
 
 
 ##Scan Unity version button
-	button = Gtk::Button.new(:label => "Scan Unity Version")
-	button.signal_connect "clicked" do |_widget|
-		scanUnityVersion()
-	end
+#	button = Gtk::Button.new(:label => "Scan Unity Version")
+#	button.signal_connect "clicked" do |_widget|
+#		scanUnityVersion()
+#	end
 #	buttonBox.add(button)
 
 
@@ -505,12 +513,12 @@ def makeWindow()
 	uploadBox.add(button)
 
 
-## Make Upload Script button	
-	button = Gtk::Button.new(:label => "Make Upload Script")
-	button.signal_connect "clicked" do |_widget|
-		makeUploadScriptAllSelected()
-	end
-	uploadBox.add(button)
+## Make Upload Script button - obsolete, butler executed directly from the script
+#	button = Gtk::Button.new(:label => "Make Upload Script")
+#	button.signal_connect "clicked" do |_widget|
+#		makeUploadScriptAllSelected()
+#	end
+#	uploadBox.add(button)
 
 	
 ## Call Upload Script button	
@@ -1185,12 +1193,12 @@ def onlineDocsClicked()
 end
 
 
-def scanUnityVersion() 
-			getUnityVersion()
-			readConfigFile()
-			$textUnityCurrentVersion.text = $config.unity_current_version
-
-end
+#def scanUnityVersion() 
+#			getUnityVersion()
+#			readConfigFile()
+#			$textUnityCurrentVersion.text = $config.unity_current_version
+#			$textUnityCurrentVersion.text = "foo"
+#end
 
 
 def displayInfoDialog(strMessage)
