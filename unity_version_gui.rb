@@ -491,6 +491,28 @@ def makeWindow()
 	buttonBox.add(buildBox)
 
 
+##Make utilities box
+	utilitiesBox = Gtk::ButtonBox.new(:vertical)
+	
+	#Export PlayMaker globals
+	button = Gtk::Button.new(:label => "Export PlayMaker globals")
+	button.signal_connect "clicked" do |_widget|
+		exportPlaymakerGlobalsClicked()
+	end
+	utilitiesBox.add(button)
+
+
+	#Install New PlayMaker
+	button = Gtk::Button.new(:label => "Install New PlayMaker")
+	button.signal_connect "clicked" do |_widget|
+		installNewPlayMakerClicked()
+	end
+	utilitiesBox.add(button)
+
+
+	buttonBox.add(utilitiesBox)
+
+
 
 ##Scan Unity version button
 #	button = Gtk::Button.new(:label => "Scan Unity Version")
@@ -1086,18 +1108,135 @@ def enterSlugClicked()
 			displayInfoDialog("No projects selected")
 		
 		end 
-
-		
-		
-
-		
-		
 		
 	else
 		puts "No games selected"
 	end
 
 end
+
+
+def exportPlaymakerGlobalsClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		if (selectedArray.length > 0)
+			selectedArray.each do | game |
+			
+				if (game.playmaker_version != "")
+
+
+					dirProject = File.join($config.projects_dir, game.name)
+					strPath = File.join(dirProject, "export").gsub(File::SEPARATOR, File::ALT_SEPARATOR)
+					puts "Opening folder #{strPath}"
+
+					if (!Dir.exist?(strPath))
+						FileUtils.mkdir_p(strPath)
+					end
+					
+					strGlobals = File.join(dirProject, "Assets", "PlayMaker", "Resources", "PlayMakerGlobals.asset")
+					
+					if (File.exist?(strGlobals))
+						puts "Exporting PlayMakerGlobals.asset to export directory"
+						FileUtils.cp(strGlobals, strPath)
+					else 
+						puts "PlayMakerGlobals.asset does not exist"
+					end
+
+
+
+				end
+		
+
+			end
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
+	else
+		puts "No games selected"
+	end
+
+end
+
+
+def installNewPlayMakerClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		if (selectedArray.length > 0)
+			selectedArray.each do | game |
+			
+				if (game.playmaker_version != "")
+
+
+					dirProject = File.join($config.projects_dir, game.name)
+
+					strPath = File.join(dirProject, "Assets", "PlayMaker")
+					if (Dir.exist?(strPath))
+						puts "Deleting #{strPath}"
+						FileUtils.rm_rf(strPath)
+					end
+
+					strPath = File.join(dirProject, "Assets", "Gizmos")
+					if (Dir.exist?(strPath))
+						puts "Deleting #{strPath}"
+						FileUtils.rm_rf(strPath)
+					end
+					
+
+					strPath = File.join(dirProject, "Assets", "Plugins", "PlayMaker")
+					if (Dir.exist?(strPath))
+						puts "Deleting #{strPath}"
+						FileUtils.rm_rf(strPath)
+					end
+
+					strPath = File.join(dirProject, "Assets", "Plugins", "PlayMaker.meta")
+					if (!Dir.exist?(strPath))
+						puts "Deleting #{strPath}"
+						FileUtils.rm_rf(strPath)
+					end
+					
+					#strPlayMakerDefault = 'D:\ldsmith\projects\KittysAdventure\Assets\PlayMaker\Versions\PlaymakerDefault.unitypackage'
+					#FileUtils.cp(strPlayMakerDefault, dirProject + '\Assets')
+#		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -importPackage D:\ldsmith\projects\KittysAdventure\Assets\PlayMaker\Versions\PlaymakerDefault.unitypackage -quit'
+#		puts strCommand
+		#system(strCommand)
+					FileUtils.cp('playmaker\Playmaker.1.9.0.unitypackage', File.join(dirProject, "Assets", "PlayMaker"))
+
+
+				end
+		
+
+			end
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
+	else
+		puts "No games selected"
+	end
+
+end
+
 
 
 
