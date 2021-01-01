@@ -20,8 +20,14 @@ class Config
 	attr_accessor :butler_exe
 	attr_accessor :itch_username
 	
-	def getUnityExe()
-		return File.join(unity_folder, unity_selected_version.ToString(), "Editor/Unity.exe")
+	
+	def getUnityExe(strVersion = nil)
+		if (strVersion.nil?)
+			return File.join(unity_folder, unity_selected_version.ToString(), "Editor/Unity.exe")
+		else
+			return File.join(unity_folder, strVersion, "Editor/Unity.exe")
+		end
+	
 	end
 end
 
@@ -36,6 +42,12 @@ class GameProject
 		def hasCurrentVersion
 			
 			return true
+		end
+		
+		def getLatestVersion()
+			#Fix this later.  Most projects will only have one version number, unless old files are still present
+			return versions[0]
+		
 		end
 end
 
@@ -247,7 +259,7 @@ def compileWebGL(games)
 		
 		
 #		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -executeMethod EditorScript.PerformBuild -quit'
-		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -executeMethod EditorScript.PerformBuild -quit'
+		strCommand = '"' + $config.getUnityExe(game.getLatestVersion().versionNumber) + '" -logFile -projectPath ' + dirProject + ' -executeMethod EditorScript.PerformBuild -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -421,7 +433,8 @@ def compileWindows(games)
 		end
 		
 #		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
-		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
+#		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
+		strCommand = '"' + $config.getUnityExe(game.getLatestVersion().versionNumber) + '" -logFile -projectPath ' + dirProject + ' -buildWindowsPlayer ' + File.join(dirBuild, game.name + ".exe") + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -443,7 +456,7 @@ def compileMac(games)
 		end
 		
 #		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildOSXUniversalPlayer ' + File.join(dirBuild, game.name + ".app") + ' -quit'
-		strCommand = '"' + $config.getUnityExe + '" -logFile -projectPath ' + dirProject + ' -buildOSXUniversalPlayer ' + File.join(dirBuild, game.name + ".app") + ' -quit'
+		strCommand = '"' + $config.getUnityExe(game.getLatestVersion().versionNumber) + '" -logFile -projectPath ' + dirProject + ' -buildOSXUniversalPlayer ' + File.join(dirBuild, game.name + ".app") + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
@@ -466,7 +479,7 @@ def compileLinux(games)
 		end
 		
 #		strCommand = '"' + $config.unity_exe + '" -logFile -projectPath ' + dirProject + ' -buildLinuxUniversalPlayer ' + File.join(dirBuild, game.name) + ' -quit'
-		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -buildLinux64Player ' + File.join(dirBuild, game.name) + ' -quit'
+		strCommand = '"' + $config.getUnityExe(game.getLatestVersion().versionNumber) + '" -logFile -projectPath ' + dirProject + ' -buildLinux64Player ' + File.join(dirBuild, game.name) + ' -quit'
 		puts strCommand
 		system(strCommand)
 		
