@@ -528,7 +528,7 @@ def makeWindow()
 
 
 ##Copy scripts to project
-	button = Gtk::Button.new(:label => "Copy scripts")
+	button = Gtk::Button.new(:label => "Copy scripts and splash images", :tooltip => "hello")
 	button.signal_connect "clicked" do |_widget|
 		copyScriptsClicked()
 	end
