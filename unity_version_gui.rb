@@ -1,4 +1,4 @@
-### 2018, 2019, 2020 Levi D. Smith
+### 2018, 2019, 2020, 2022 Levi D. Smith
 ### levidsmith.com
 
 require 'gtk3'
@@ -363,7 +363,7 @@ def makeWindow()
 
 
 	puts "Adding new table row"
-	window.set_title("Unity Build Tool - 2020 Levi D. Smith")
+	window.set_title("Unity Build Tool - 2022 Levi D. Smith")
 
 
 
@@ -448,6 +448,14 @@ def makeWindow()
 		removeDefaultPackagesClicked()
 	end
 	buildBox.add(button)
+
+##Delete non source folders (Library, Temp, Logs)
+	button = Gtk::Button.new(:label => "Delete Non Source folders")
+	button.signal_connect "clicked" do |_widget|
+		deleteNonSourceFoldersClicked()
+	end
+	buildBox.add(button)
+
 
 ##Update API
 	button = Gtk::Button.new(:label => "Update API")
@@ -906,6 +914,37 @@ def removeDefaultPackagesClicked()
 
 
 end
+
+def deleteNonSourceFoldersClicked() 
+	if (!$checkboxArray.nil? && $checkboxArray.count > 0)
+		i = 0
+		selectedArray = Array.new
+		$checkboxArray.each do | checkbox |
+			if (checkbox.active?)
+				selectedArray << $gameArray[i]
+			end	
+			i += 1
+		end
+		
+		if (selectedArray.length > 0)
+			deleteNonSourceFolders(selectedArray)
+
+			Sound.play('.\sounds\jobsdone.wav')
+		
+		else
+			displayInfoDialog("No projects selected")
+		
+		end 
+		
+
+	else
+		puts "No projects selected"
+	end
+
+
+end
+
+
 
 def updateAPIClicked() 
 	if (!$checkboxArray.nil? && $checkboxArray.count > 0)

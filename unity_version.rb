@@ -412,9 +412,36 @@ def deleteVisualStudioProjectFiles(games)
 				end
 			}
 		end
-		
 	end
+end
 
+def deleteNonSourceFolders(games)
+	games.each do | game |
+		dirProject = File.join($config.projects_dir, game.name)
+
+		if (File.directory?(dirProject)) 
+			Dir.entries(dirProject).select { | strFileName |
+				if (strFileName != '.' && strFileName != '..')
+
+					strFolderArray = Array.new()
+					strFolderArray << 'Library'
+					strFolderArray << 'Temp'
+					strFolderArray << 'Logs'
+					strFolderArray << 'obj'
+
+					strFolderArray.each do | strFolder |
+						if (strFileName == strFolder)
+							filePath = File.join(dirProject, strFileName)
+							puts "Deleting: #{filePath}"
+							FileUtils.rm_rf(filePath)
+						end
+					end
+
+
+				end
+			}
+		end
+	end
 end
 
 
