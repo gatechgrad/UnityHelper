@@ -6,6 +6,8 @@ require 'win32/sound'
 include Win32
 require_relative 'unity_version'
 
+PLAYMAKER_INSTALL_PACKAGE = 'playmaker\Playmaker.1.9.5.unitypackage'
+
 $tableGames = Gtk::Table.new(1, 1, false)
 $checkboxArray
 $labelArray
@@ -1173,21 +1175,7 @@ def exportPlaymakerGlobalsClicked()
 
 
 					dirProject = File.join($config.projects_dir, game.name)
-					strPath = File.join(dirProject, "export").gsub(File::SEPARATOR, File::ALT_SEPARATOR)
-					puts "Opening folder #{strPath}"
-
-					if (!Dir.exist?(strPath))
-						FileUtils.mkdir_p(strPath)
-					end
-					
-					strGlobals = File.join(dirProject, "Assets", "PlayMaker", "Resources", "PlayMakerGlobals.asset")
-					
-					if (File.exist?(strGlobals))
-						puts "Exporting PlayMakerGlobals.asset to export directory"
-						FileUtils.cp(strGlobals, strPath)
-					else 
-						puts "PlayMakerGlobals.asset does not exist"
-					end
+					exportPlaymakerGlobals(dirProject)
 
 
 
@@ -1204,6 +1192,25 @@ def exportPlaymakerGlobalsClicked()
 	else
 		puts "No games selected"
 	end
+
+end
+
+def exportPlaymakerGlobals(dirProject)
+					strPath = File.join(dirProject, "export").gsub(File::SEPARATOR, File::ALT_SEPARATOR)
+					puts "Opening folder #{strPath}"
+
+					if (!Dir.exist?(strPath))
+						FileUtils.mkdir_p(strPath)
+					end
+					
+					strGlobals = File.join(dirProject, "Assets", "PlayMaker", "Resources", "PlayMakerGlobals.asset")
+					
+					if (File.exist?(strGlobals))
+						puts "Exporting PlayMakerGlobals.asset to export directory"
+						FileUtils.cp(strGlobals, strPath)
+					else 
+						puts "PlayMakerGlobals.asset does not exist"
+					end
 
 end
 
@@ -1226,6 +1233,9 @@ def installNewPlayMakerClicked()
 
 
 					dirProject = File.join($config.projects_dir, game.name)
+					
+					puts "exporting Playmaker globals"
+					exportPlaymakerGlobals(dirProject)
 
 					strPath = File.join(dirProject, "Assets", "PlayMaker")
 					if (Dir.exist?(strPath))
@@ -1257,8 +1267,14 @@ def installNewPlayMakerClicked()
 #		strCommand = '"' + $config.getUnityExe() + '" -logFile -projectPath ' + dirProject + ' -importPackage D:\ldsmith\projects\KittysAdventure\Assets\PlayMaker\Versions\PlaymakerDefault.unitypackage -quit'
 #		puts strCommand
 		#system(strCommand)
-					FileUtils.cp('playmaker\Playmaker.1.9.0.unitypackage', File.join(dirProject, "Assets", "PlayMaker"))
+					puts "Copying new Playmaker"
+					FileUtils.mkdir(File.join(dirProject, "Assets", "PlayMaker"))
+#					FileUtils.cp('playmaker\Playmaker.1.9.0.unitypackage', File.join(dirProject, "Assets", "PlayMaker"))
+					FileUtils.cp(PLAYMAKER_INSTALL_PACKAGE, File.join(dirProject, "Assets", "PlayMaker"))
+					
 
+					
+					displayInfoDialog("Open the project in Unity and run Assets/#{PLAYMAKER_INSTALL_PACKAGE}\nImport\nFix any remaining errors (remove UnityHelper scripts)\nUnity menu should display.  Don't install again\nImport Globals by copying <project folder>/export/PlaymakerGlobals.asset to Assets/Playmaker/Resources\nRestart project in Unity")
 
 				end
 		
